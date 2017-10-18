@@ -86,29 +86,34 @@ ctx.textAlign = "center";
 
 ctx.moveTo(xPosOrigin, yPosOrigin);
 ctx.lineTo(xPosDest, yPosDest);
-ctx.globalCompositeOperation = "destination-over";
-ctx.stroke();
-ctx.globalCompositeOperation = "destination-over";
-ctx.fillStyle = "#FF0000";
-ctx.fillRect(xPosDest - 35, yPosDest - 20, 70, 20);
-ctx.globalCompositeOperation = "source-over";
-ctx.fillStyle = "#3333ff";
-ctx.fillText("(" + round(xPosDest, 1) + " , " + round(yPosDest, 1) + ")", xPosDest, yPosDest - 10);
+drawText(xPosDest, yPosDest);
+for (i = 0; i < dataLength; i++) {
+    xPosDest = xPosDest * 2;
+    yOffset = yOffset * -1;
+    yPosDest = yPosDest - yPosDest / 2 * yOffset;
+    drawText(xPosDest, yPosDest);
+}
+xPosDest = c.width / 10;
+yPosDest = c.height / 1.2;
+yOffset = -1;
 
 for (var i = 0; i < dataLength; i++) {
     xPosDest = xPosDest * 2;
     yOffset = yOffset * -1;
     yPosDest = yPosDest - yPosDest / 2 * yOffset;
-    drawLine(xPosDest, yPosDest);
+    createPath(xPosDest, yPosDest);
+}
+ctx.globalCompositeOperation = "destination-over";
+ctx.stroke();
+
+function createPath(destX, destY) {
+    ctx.lineTo(destX, destY);
 }
 
-function drawLine(destX, destY) {
-    ctx.lineTo(destX, destY);
-    ctx.stroke();
-    ctx.globalCompositeOperation = "destination-over";
+function drawText(destX, destY) {
+    ctx.globalCompositeOperation = "source-over";
     ctx.fillStyle = "#FF0000";
     ctx.fillRect(destX - 35, destY - 20, 70, 20);
-    ctx.globalCompositeOperation = "source-over";
     ctx.fillStyle = "#3333ff";
     ctx.fillText("(" + round(destX, 1) + " , " + round(destY, 1) + ")", destX, destY - 10);
 }
