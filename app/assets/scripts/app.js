@@ -7,31 +7,32 @@ var yPosOrigin = 0;
 
 var xPosDest = c.width/10;
 var yPosDest = c.height/1.2;
-var yOffset = -1;
+var yOffset = 1;
+var takt = -50;
 
 ctx.textBaseline="middle";
 ctx.textAlign="center";
+ctx.translate(0,c.height);
 
-
-ctx.moveTo(xPosOrigin,yPosOrigin);
-ctx.lineTo(xPosDest,yPosDest);
-drawText(xPosDest,yPosDest);
+ctx.moveTo(xPosOrigin, yPosOrigin);
+ctx.lineTo(xPosDest,-yPosDest);
+drawText(xPosDest,-yPosDest);
 for(i=0;i<dataLength;i++){
     xPosDest=xPosDest*2;
     yOffset = yOffset*-1;
-    yPosDest=yPosDest-((yPosDest/2)*yOffset);
-    drawText(xPosDest,yPosDest);
+    yPosDest=yPosDest+((yPosDest/2)*yOffset);
+    drawText(xPosDest,-yPosDest);
     
 }
 xPosDest = c.width/10;
 yPosDest = c.height/1.2;
-yOffset = -1;
+yOffset = 1;
 
 for(var i=0;i<dataLength;i++){
     xPosDest=xPosDest*2;
     yOffset = yOffset*-1;
-    yPosDest=yPosDest-((yPosDest/2)*yOffset);
-    createPath(xPosDest,yPosDest);
+    yPosDest=yPosDest+((yPosDest/2)*yOffset);
+    createPath(xPosDest,-yPosDest);
     
 }
 ctx.globalCompositeOperation="destination-over";
