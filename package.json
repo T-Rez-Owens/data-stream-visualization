@@ -1,0 +1,13 @@
+{
+  "name": "data-stream-visualization",
+  "version": "1.0.0",
+  "dependencies": {},
+  "devDependencies": {
+    "browser-sync": "2.18.13",
+    "gulp": "3.9.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-rev": "^8.0.0",
+    "gulp-watch": "^4.3.11",
+    "webpack": "^3.4.0"
+  }
+}
