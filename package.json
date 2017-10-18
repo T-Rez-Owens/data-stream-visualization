@@ -1,13 +1,23 @@
 {
   "name": "data-stream-visualization",
   "version": "1.0.0",
-  "dependencies": {},
+  "dependencies": {
+    
+  },
   "devDependencies": {
+    "autoprefixer": "^7.1.2",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
     "browser-sync": "2.18.13",
     "gulp": "3.9.1",
+    "gulp-postcss": "^7.0.0",
     "gulp-rename": "^1.2.2",
     "gulp-rev": "^8.0.0",
     "gulp-watch": "^4.3.11",
+    "postcss-import": "10.0.0",
+    "postcss-mixins": "^6.0.1",
+    "postcss-nested": "^2.0.4",
     "webpack": "^3.4.0"
   }
 }

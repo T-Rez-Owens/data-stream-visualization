@@ -1,0 +1,13 @@
+h1 {
+    color: blue;
+    text-align: center;
+}
+
+img {
+    padding-left: auto;
+    padding-right: auto;
+}
+
+canvas {
+    border: 1px solid #000000;
+}
