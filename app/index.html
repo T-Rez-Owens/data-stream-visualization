@@ -12,8 +12,20 @@
     <header>
         <h1 class="page-title">Awesome Data visualization page</h1>
     </header>
-
-    <canvas id="myCanvas" width="1000" height="250"></canvas>
+    <div class="wrapper"> 
+        <div class="draw-canvas-button">
+            Click me to draw the canvas!
+        </div>
+    </div>
+    <label for="taktLG">Enter Takt for Line Graph:</label>
+    <input class="line-graph-canvas-input taktLG" id="taktLG" value="" type="number">
+    <label for="widthLg">Enter width for Line Graph:</label>
+    <input class="line-graph-canvas-input widthLG" id="widthLG" value="" type="number">
+    <label for="heightLG">Enter height for Line Graph:</label>
+    <input class="line-graph-canvas-input heightLG" id="heightLG" value="" type="number">
+    <label for="numberOfPointsLG">Enter number of points for Line Graph:</label>
+    <input class="line-graph-canvas-input numberOfPointsLG" id="numberOfPointsLG" value="" type="number">
+    <canvas id="myCanvas" class="line-graph-canvas"></canvas>
 
     <footer>
 

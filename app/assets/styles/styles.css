@@ -1,6 +1,10 @@
+body {
+    text-align: center;
+    box-sizing: border-box;
+    position: relative;
+}
 h1 {
     color: blue;
-    text-align: center;
 }
 
 img {
@@ -8,6 +12,40 @@ img {
     padding-right: auto;
 }
 
+.wrapper{
+    position: relative;
+}
 canvas {
     border: 1px solid #000000;
+    display: block;
+}
+
+label {
+    float: left;
+    display: inline-block;
+    margin-left: 10px;
+    margin-right: auto;
+    margin-bottom: 5px;
+    text-align: left;
+    position: relative;
+    top:0;
+    left: 0;
+}
+
+.line-graph-canvas-input {
+    display: block;
+    
+    margin-left: 10px;
+    margin-right: auto;
+}
+
+.draw-canvas-button{
+    border: 1px solid #000000;
+    padding: 5px 5px;
+    max-width: 200px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #3c02a7;
+    color: #ffffff;
+    margin-bottom: 10px;
 }
