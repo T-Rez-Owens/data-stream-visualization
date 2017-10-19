@@ -33,8 +33,10 @@ class DrawLineGraph{
         ctx.translate(0,ctx.canvas.height);
         var rect = this.c.get(0).getBoundingClientRect();
         ctx.beginPath();
-        ctx.moveTo (0,this.inTakt.get(0).value);
-        ctx.lineTo (this.inXwidth.get(0).value,this.inTakt.get(0).value);
+        ctx.moveTo (0,-this.inTakt.get(0).value);
+        console.log(0 + "," + "-" + this.inTakt.get(0).value);
+        ctx.lineTo (this.inXwidth.get(0).value,-this.inTakt.get(0).value);
+        console.log(this.inXwidth.get(0).value + "," + "-" + this.inTakt.get(0).value);
         ctx.strokeStyle="red";
         ctx.stroke();
 
@@ -42,7 +44,7 @@ class DrawLineGraph{
         ctx.strokeStyle="black";
         ctx.moveTo(0, ctx.canvas.height);
         ctx.lineTo(xPosDest,-yPosDest);
-        console.log(xPosDest + "," + "-" + yPosDest)
+        console.log(xPosDest + "," + "-" + yPosDest);
         drawText(xPosDest,-yPosDest);
         for(i=0;i<this.inDataLength.get(0).value;i++){
             xPosDest=xPosDest*2;

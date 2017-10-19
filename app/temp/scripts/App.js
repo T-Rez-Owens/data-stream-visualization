@@ -10334,9 +10334,14 @@ var _DrawLineGraph = __webpack_require__(2);
 
 var _DrawLineGraph2 = _interopRequireDefault(_DrawLineGraph);
 
+var _TabThroughForm = __webpack_require__(3);
+
+var _TabThroughForm2 = _interopRequireDefault(_TabThroughForm);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var drawDemoGraph = new _DrawLineGraph2.default();
+var tabThroughForm = new _TabThroughForm2.default();
 
 /***/ }),
 /* 2 */
@@ -10397,8 +10402,10 @@ var DrawLineGraph = function () {
             ctx.translate(0, ctx.canvas.height);
             var rect = this.c.get(0).getBoundingClientRect();
             ctx.beginPath();
-            ctx.moveTo(0, this.inTakt.get(0).value);
-            ctx.lineTo(this.inXwidth.get(0).value, this.inTakt.get(0).value);
+            ctx.moveTo(0, -this.inTakt.get(0).value);
+            console.log(0 + "," + "-" + this.inTakt.get(0).value);
+            ctx.lineTo(this.inXwidth.get(0).value, -this.inTakt.get(0).value);
+            console.log(this.inXwidth.get(0).value + "," + "-" + this.inTakt.get(0).value);
             ctx.strokeStyle = "red";
             ctx.stroke();
 
@@ -10450,6 +10457,45 @@ var DrawLineGraph = function () {
 }();
 
 exports.default = DrawLineGraph;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var TabThroughForm = function () {
+    function TabThroughForm() {
+        _classCallCheck(this, TabThroughForm);
+
+        this.event();
+    }
+
+    _createClass(TabThroughForm, [{
+        key: 'event',
+        value: function event() {
+            $(document).on('focus', '.button', function () {
+                $(this).css('border', '1px dotted black');
+            });
+            $(document).on('keyup', '.button', function (e) {
+                if (e.which == 13 || e.which == 32) $(this).click();
+            });
+        }
+    }]);
+
+    return TabThroughForm;
+}();
+
+exports.default = TabThroughForm;
 
 /***/ })
 /******/ ]);
