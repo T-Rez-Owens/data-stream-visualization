@@ -6,7 +6,7 @@ rev = require('gulp-rev'),
 uglify = require('gulp-uglify'),
 browserSync = require('browser-sync').create();
 
-gulp.task('previewdocs',function(){
+gulp.task('previewDocs',['build'],function(){
     browserSync.init({
 		notify: false,
 		server: {
@@ -30,7 +30,16 @@ gulp.task('copyGeneralFiles', ['deletedocsFolder'],function(){
         '!./app/assets/images/**',
         '!./app/assets/styles/**',
         '!./app/temp',
-        '!./app/temp/**'
+        '!./app/temp/**',
+        '!./**/assets/**/app',
+        '!./**/assets/**/app/**/',
+        '!./**/gulpfile.js',
+        '!./**/package.json',
+        '!./**/yarn.lock',
+        '!./**/webpack.config.js',
+        '!./**/gulp',
+        '!./**/gulp/**/*',
+
     ];
     return gulp.src(pathsToCopy)
     .pipe(gulp.dest("./docs"));
@@ -49,6 +58,7 @@ gulp.task('optimizeImages',['deletedocsFolder'],function() {
 gulp.task('usemin',['deletedocsFolder', 'css','scripts'],function(){
     return gulp.src("./app/index.html")
     .pipe(usemin({
+        css: [function(){return rev();}],
         js: [function(){return rev();}, function(){return uglify();}]
     }))
     .pipe(gulp.dest("./docs/"));
