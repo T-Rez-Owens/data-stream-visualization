@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="assets/styles/styles.css"/>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+
+
+
+<body>
+    <header>
+        <h1 class="page-title">Awesome Data visualization page</h1>
+    </header>
+    
+    <div class="form">
+        <label for="taktLG">Enter Takt for Line Graph:</label>
+        <input class="line-graph-canvas-input taktLG" id="taktLG" value="" type="number">
+        <label for="widthLg">Enter width for Line Graph:</label>
+        <input class="line-graph-canvas-input widthLG" id="widthLG" value="" type="number">
+        <label for="heightLG">Enter height for Line Graph:</label>
+        <input class="line-graph-canvas-input heightLG" id="heightLG" value="" type="number">
+        <label for="numberOfPointsLG">Enter number of points for Line Graph:</label>
+        <input class="line-graph-canvas-input numberOfPointsLG" id="numberOfPointsLG" value="" type="number">
+    </div>
+    
+    <div class="wrapper"> 
+        <div tabindex="0" class="button draw-canvas-button">
+            Click me to draw the canvas!
+        </div>
+    </div>
+
+    <canvas id="myCanvas" class="line-graph-canvas"></canvas>
+
+    <footer>
+
+    </footer>
+    <script src="assets/scripts/App-ef523fd1e3.js"></script>
+</body>
+
+</html>
