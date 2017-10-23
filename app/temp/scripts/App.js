@@ -10338,8 +10338,13 @@ var _TabThroughForm = __webpack_require__(3);
 
 var _TabThroughForm2 = _interopRequireDefault(_TabThroughForm);
 
+var _TestInputs = __webpack_require__(4);
+
+var _TestInputs2 = _interopRequireDefault(_TestInputs);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var testInputs = new _TestInputs2.default();
 var drawDemoGraph = new _DrawLineGraph2.default();
 var tabThroughForm = new _TabThroughForm2.default();
 
@@ -10399,8 +10404,11 @@ var DrawLineGraph = function () {
             var yPosDest = ctx.canvas.height / 1.2;
             ctx.textBaseline = "middle";
             ctx.textAlign = "center";
+            ctx.font = '600 2rem Arial';
             ctx.translate(0, ctx.canvas.height);
             var rect = this.c.get(0).getBoundingClientRect();
+
+            //Draw TAKT line
             ctx.beginPath();
             ctx.moveTo(0, -this.inTakt.get(0).value);
             console.log(0 + "," + "-" + this.inTakt.get(0).value);
@@ -10409,6 +10417,7 @@ var DrawLineGraph = function () {
             ctx.strokeStyle = "red";
             ctx.stroke();
 
+            //Draw Demo path
             ctx.beginPath();
             ctx.strokeStyle = "black";
             ctx.moveTo(0, ctx.canvas.height);
@@ -10442,7 +10451,7 @@ var DrawLineGraph = function () {
             function drawText(destX, destY) {
                 ctx.globalCompositeOperation = "source-over";
                 ctx.fillStyle = "#FF0000";
-                ctx.fillRect(destX - 35, destY - 20, 70, 20);
+                ctx.fillRect(destX - 110, destY - 30, 225, 40);
                 ctx.fillStyle = "#3333ff";
                 ctx.fillText("(" + round(destX, 1) + " , " + round(destY, 1) + ")", destX, destY - 10);
             }
@@ -10496,6 +10505,59 @@ var TabThroughForm = function () {
 }();
 
 exports.default = TabThroughForm;
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _jquery = __webpack_require__(0);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var TestInputs = function () {
+    function TestInputs() {
+        _classCallCheck(this, TestInputs);
+
+        this.inTakt = (0, _jquery2.default)(".taktLG");
+        this.inXwidth = (0, _jquery2.default)(".widthLG");
+        this.inYheight = (0, _jquery2.default)(".heightLG");
+        this.inDataLength = (0, _jquery2.default)(".numberOfPointsLG");
+        this.defaultInputs();
+        this.logInputs();
+    }
+
+    _createClass(TestInputs, [{
+        key: "defaultInputs",
+        value: function defaultInputs() {
+            this.inTakt.get(0).value = 250;
+            this.inXwidth.get(0).value = 1000;
+            this.inYheight.get(0).value = 500;
+            this.inDataLength.get(0).value = 5;
+        }
+    }, {
+        key: "logInputs",
+        value: function logInputs() {
+            console.log(this.inTakt.get(0).value + " , " + this.inXwidth.get(0).value + " , " + this.inYheight.get(0).value + " , " + this.inDataLength.get(0).value);
+        }
+    }]);
+
+    return TestInputs;
+}();
+
+exports.default = TestInputs;
 
 /***/ })
 /******/ ]);

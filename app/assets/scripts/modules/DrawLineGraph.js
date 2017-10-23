@@ -30,8 +30,11 @@ class DrawLineGraph{
         var yPosDest = ctx.canvas.height/1.2;
         ctx.textBaseline="middle";
         ctx.textAlign="center";
+        ctx.font='600 2rem Arial';
         ctx.translate(0,ctx.canvas.height);
         var rect = this.c.get(0).getBoundingClientRect();
+        
+        //Draw TAKT line
         ctx.beginPath();
         ctx.moveTo (0,-this.inTakt.get(0).value);
         console.log(0 + "," + "-" + this.inTakt.get(0).value);
@@ -40,6 +43,7 @@ class DrawLineGraph{
         ctx.strokeStyle="red";
         ctx.stroke();
 
+        //Draw Demo path
         ctx.beginPath();
         ctx.strokeStyle="black";
         ctx.moveTo(0, ctx.canvas.height);
@@ -77,7 +81,7 @@ class DrawLineGraph{
         function drawText(destX,destY){
             ctx.globalCompositeOperation="source-over";
             ctx.fillStyle="#FF0000";
-            ctx.fillRect(destX-35,destY-20,70,20);
+            ctx.fillRect(destX-110,destY-30,225,40);
             ctx.fillStyle = "#3333ff";
             ctx.fillText("(" + round(destX,1) + " , "+ round(destY,1) + ")",(destX),(destY-10));    
         }
