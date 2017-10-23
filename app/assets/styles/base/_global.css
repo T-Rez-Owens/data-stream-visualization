@@ -1,0 +1,23 @@
+body {
+    text-align: center;
+    box-sizing: border-box;
+    position: relative;
+}
+
+h1 {
+    color: orangered;
+}
+
+img {
+    padding-left: auto;
+    padding-right: auto;
+}
+input {
+    width: 70%;
+}
+
+label {
+    font-weight: bold;
+    position: static;
+    text-align: left;
+}

@@ -3,6 +3,7 @@ postcss = require('gulp-postcss'),
 autoprefixer = require('autoprefixer'),
 nested = require('postcss-nested'),
 cssImport = require('postcss-import'),
+rev = require('gulp-rev'),
 mixins = require('postcss-mixins');
 
 gulp.task('css', function(){

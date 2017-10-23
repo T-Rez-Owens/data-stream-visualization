@@ -1,28 +1,3 @@
-body {
-    text-align: center;
-    box-sizing: border-box;
-    position: relative;
-}
-h1 {
-    color: blue;
-}
-
-img {
-    padding-left: auto;
-    padding-right: auto;
-}
-
-.form {
-    position: relative;
-}
-
-.wrapper{
-    position: relative;
-}
-
-input {
-    width: 70%;
-}
 canvas {
     margin-top:20px; 
     border: 1px solid #000000;
@@ -32,11 +7,6 @@ canvas {
     
 }
 
-label {
-    font-weight: bold;
-    position: static;
-    text-align: left;
-}
 
 .line-graph-canvas-input {
     display: block;
