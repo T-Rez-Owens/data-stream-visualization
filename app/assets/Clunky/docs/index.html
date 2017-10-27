@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="assets/styles/styles.css"/>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+
+
+
+<body>
+    <header>
+        <h1 class="page-title">Clunky Data visualization page</h1>
+    </header>
+    
+    <div class="form">
+        
+        <input name:"Enter Takt for Line Graph:" class="line-graph-canvas-input taktLG" id="taktLG" value="" type="number">
+        <input name:"Canvas Width" class="line-graph-canvas-input widthLG" id="widthLG" value="" type="number">
+        <input name:"Canvas Height" class="line-graph-canvas-input heightLG" id="heightLG" value="" type="number">
+        <input name:"Number of Data Points" class="line-graph-canvas-input numberOfPointsLG" id="numberOfPointsLG" value="" type="number">
+    </div>
+    
+    <div class="wrapper"> 
+        <div tabindex="0" class="button draw-canvas-button">
+            Click me to draw the canvas!
+        </div>
+    </div>
+
+    <canvas id="myCanvas" class="line-graph-canvas"></canvas>
+
+    <footer>
+
+    </footer>
+    <script src="assets/scripts/App-ef523fd1e3.js"></script>
+</body>
+
+</html>
