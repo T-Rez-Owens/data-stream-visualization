@@ -2,7 +2,11 @@
   "name": "data-stream-visualization",
   "version": "1.0.0",
   "dependencies": {
-    "jquery": "^3.2.1"
+    "consolidate": "^0.14.5",
+    "express": "^4.16.2",
+    "jquery": "^3.2.1",
+    "mongodb": "^2.2.33",
+    "nunjucks": "^3.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
