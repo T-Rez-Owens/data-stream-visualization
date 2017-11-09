@@ -1,8 +1,6 @@
 // test.js
 var MongoClient = require('mongodb').MongoClient,
-mongoReadyPromise = require('./mongoOpenConnection');
+mongoReadyPromise = require('./mongoOpenConnection'),
+GetMyData = require('./mongoGetData');
 
 
-mongoReadyPromise.then(db => {
-    console.log("my DB: ", db);
-});

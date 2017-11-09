@@ -1,4 +1,4 @@
-var db = require()
+mongoReadyPromise = require('./mongoOpenConnection');
 
 $(function () {
     $(document).ready(function () {
@@ -60,16 +60,19 @@ $(function () {
                 name: 'Lux',
                 data: (function () {
                     // generate an array of random data
-                    var data = [],
-                        time = (new Date()).getTime(),
-                        i;
-
-                    for (i = -19; i <= 0; i += 1) {
-                        data.push({
-                            x: time + i * 1000,
-                            y: Math.random()
+                    var data = [];
+                    mongoReadyPromise.then(db => {
+                        db.collection('points').find({'sensor':sensor}).toArray(function(err,docs){
+                            console.log("found:", doc.sensor, " ", doc.value );
+                            data.push({
+                                x: doc.sensor,
+                                y: doc.value
+                            });
                         });
-                    }
+                    });
+                    
+                    
+                    
                     return data;
                 }())
             }]

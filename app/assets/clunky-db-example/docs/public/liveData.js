@@ -1,4 +1,4 @@
-mongoReadyPromise = require('./mongoOpenConnection');
+
 
 $(function () {
     $(document).ready(function () {
@@ -56,26 +56,10 @@ $(function () {
             exporting: {
                 enabled: false
             },
-            series: [{
-                name: 'Lux',
-                data: (function () {
-                    // generate an array of random data
-                    var data = [];
-                    mongoReadyPromise.then(db => {
-                        db.collection('points').find({'sensor':sensor}).toArray(function(err,docs){
-                            console.log("found:", doc.sensor, " ", doc.value );
-                            data.push({
-                                x: doc.sensor,
-                                y: doc.value
-                            });
-                        });
-                    });
-                    
-                    
-                    
-                    return data;
-                }())
-            }]
+            series: {
+                name: 'Sales',
+                data: []
+              }
         });
     });
 });

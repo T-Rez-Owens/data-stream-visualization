@@ -12,7 +12,7 @@ var mongoReadyPromise = new Promise((resolve, reject) => {
             reject(err);
         }
         assert.equal(null, err);
-        console.log("Successfully connected to /%s.", uri);
+        console.log("Successfully connected to /%s.", db.s.databaseName);
         resolve(db);
     });
 });
