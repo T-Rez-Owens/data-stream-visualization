@@ -4,9 +4,11 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     MongoClient = require('mongodb').MongoClient,
     assert = require('assert'),
-    moment = require('moment');
+    moment = require('moment'),
+    path = require('path');
 require('dotenv').load();
 
+app.use(express.static(path.join(__dirname + '/public')));
 app.engine('html', engines.nunjucks);
 app.set('view engine', 'html');
 app.set('views', __dirname + '/views');
@@ -31,7 +33,6 @@ MongoClient.connect(uri, function(err, db) {
     app.get('/', function(req, res, next) {
         res.render('add_dataPoint', {});
     });
-    
     
     app.post('/add_dataPoint', function(req, res, next) {
         var sensor = req.body.sensor;
@@ -62,3 +63,5 @@ MongoClient.connect(uri, function(err, db) {
     });
     
 });
+
+exports.uri = uri;

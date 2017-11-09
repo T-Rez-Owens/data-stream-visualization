@@ -2,6 +2,7 @@
   "name": "data-stream-visualization",
   "version": "1.0.0",
   "dependencies": {
+    "highcharts": "^6.0.2",
     "jquery": "^3.2.1",
     "moment": "^2.19.1",
     "normalize.css": "^7.0.0"

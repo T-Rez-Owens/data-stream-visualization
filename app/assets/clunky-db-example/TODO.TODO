@@ -1,0 +1,8 @@
+#TODO
+
+Highchart integration:
+    ☐ get and show history from MongoDB
+    ☐ modularize the above into function that can be swapped for InfluxDB, etc.
+    ☐ Create observable
+    ☐ Link observable
+    ☐ Update historic chart
