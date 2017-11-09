@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node docs/server.js",
     "test": "node app/public/test.js",
-    "build": "gulp build",
-    "env": "env"
+    "build": "gulp build"
   },
   "dependencies": {
     "body-parser": "~1.14.2",
@@ -30,6 +29,7 @@
   "license": "MIT",
   "repository": "private",
   "devDependencies": {
-    "gulp-nodemon": "^2.2.1"
+    "gulp-nodemon": "^2.2.1",
+    "webpack": "^3.8.1"
   }
 }

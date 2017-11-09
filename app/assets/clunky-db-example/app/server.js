@@ -1,3 +1,4 @@
+import DrawLineGraph from './modules/DrawLineGraph';
 var express = require('express'),
     app = express(),
     engines = require('consolidate'),
@@ -6,8 +7,8 @@ var express = require('express'),
     mongoReadyPromise = require('./public/mongoOpenConnection'),
     assert = require('assert'),
     moment = require('moment'),
-    path = require('path');
-
+    path = require('path'),
+    drawDemoGraph = new DrawLineGraph();
 app.use(express.static(path.join(__dirname + '/public')));
 app.engine('html', engines.nunjucks);
 app.set('view engine', 'html');

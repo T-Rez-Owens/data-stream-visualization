@@ -1,3 +1,4 @@
+import DrawLineGraph from './modules/DrawLineGraph';
 var express = require('express'),
     app = express(),
     engines = require('consolidate'),
@@ -6,8 +7,8 @@ var express = require('express'),
     mongoReadyPromise = require('./public/mongoOpenConnection'),
     assert = require('assert'),
     moment = require('moment'),
-    path = require('path');
-
+    path = require('path'),
+    drawDemoGraph = new DrawLineGraph();
 app.use(express.static(path.join(__dirname + '/public')));
 app.engine('html', engines.nunjucks);
 app.set('view engine', 'html');
@@ -44,21 +45,6 @@ app.post('/add_dataPoint', function(req, res, next) {
                     assert.equal(null, err);
                     db.collection('points').find({'sensor':sensor}).toArray(function(err,docs){
                         res.render('sensor', { 'points' : docs, 'value': value});
-                        res.container.onRendered(function() {
-                            var self = this;
-                            var chart = $('#chart-id').highcharts({}).highcharts();
-                            self.autorun(function() { // this will always run once and then every time 'keyword' changes.
-                              var keyword = Session.get('keyword');
-                              self.subscribe('myCollection', keyword, function() { // subscribe to our data, passing in keyword
-                                // the subscription is ready here, so go ahead and get the data into a suitable
-                                // form for Highcharts - we need to build an array of data points.
-                                var myData = myCollection.find().fetch().map(function(doc) {
-                                  return doc.someValueIwantToPlot;
-                                });
-                                chart.series[0].setData(myData); // tell Highcharts to use this data for the (first) series
-                              });
-                            });
-                          });
                     });
                 }
             );
