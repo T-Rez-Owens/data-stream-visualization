@@ -24,6 +24,9 @@ gulp.task('previewDocs',['build'],function(){
 gulp.task('deletedocsFolder',function(){
     if(!!argv.d){
         return del("./docs");
+    } else {
+        var pathsToDel = ["./docs/assets/styles","./docs/assets/scripts"];
+        return del(pathsToDel);
     }
         
 });

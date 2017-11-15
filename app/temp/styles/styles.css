@@ -549,7 +549,6 @@ ul li{
     content: "Loading";
     color: black;
     opacity: 40;
-    
 }
 
 .loading:before {

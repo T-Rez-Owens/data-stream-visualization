@@ -1,6 +1,3 @@
-#ignoring these since a build task will easily generate them:
-docs/
-deleteme/
 # Numerous always-ignore extensions
 *.diff
 *.err
