@@ -1,15 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="assets/styles/styles-2329dce927.css"/>
+    <link rel="stylesheet" href="assets/styles/styles-32f4482e71.css"/>
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <title>Data Visualization Home</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(window).load(function() {
+          $(".loader").fadeOut("slow");
+        })
+      </script>
+    <script type="text/javascript">
+        $(window).load(function() {
+            $(".loader--trigger").onclick = function() {
+                $(".loader").fadeIn("slow");
+            }
+            
+        })
+      </script>
 </head>
 
 
 
 <body>
+    <div class="loader">
+        <div class="loading"></div>
+        <div class="loading2"></div>
+        <p>Loading</p>
+    </div>
     <header>
         <h1 class="page-title">Data Visualization Tree page</h1>
     </header>
@@ -17,7 +35,7 @@
     <ul>
         <h2>I'm a link to a:</h3>
         <li><a class="link--normal" type="link" href="./assets/Clunky/docs/index.html"> Clunky Static Data Visualization (Live 10/23/17).</a></li>
-        <li><a class="link--normal" type="link" href="https://clunky-db-example.glitch.me/"> Clunky Visualization with a database backend (In progress: )</a></li>
+        <li><a class="link--normal loader--trigger" rel="prefetch" type="link" href="https://clunky-db-example.glitch.me/"> Clunky Visualization with a database backend (In progress: )</a></li>
         <li><a class="link--normal" type="link" href="./assets/Collision_Friendly_Database/docs/Collision_Friendly_Database.html"> Collision friendly (More data responsive) Visualization with a database backend (Stay Tuned)</a></li>
         <li><a class="link--normal" type="link" href="./assets/Collision_Friendly_TimeSeries_Database/docs/Collision_Friendly_TimeSeries_Database.html"> Visualization with a time series database backend and live streaming data (Stay Tuned)</a></li>
     </ul>

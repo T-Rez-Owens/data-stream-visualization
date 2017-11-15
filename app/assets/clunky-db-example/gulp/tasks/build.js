@@ -1,3 +1,4 @@
+//Gulp build (copy, minify, optimize images tasks)
 var gulp = require('gulp'),
 imageMin = require('gulp-imagemin'),
 del = require('del'),
@@ -6,52 +7,28 @@ rev = require('gulp-rev'),
 uglify = require('gulp-uglify'),
 browserSync = require('browser-sync').create();
 
-gulp.task('previewDocs',['build'],function(){
-    browserSync.init({
-		notify: false,
-		server: {
-			baseDir: "docs"
-		}
-	
-	});
-});
-
-gulp.task('deletedocsFolder',function(){
+gulp.task('deleteDocsFolder',function(){
     return del("./docs");
 });
 
-gulp.task('copyGeneralFiles', ['deletedocsFolder'],function(){
+gulp.task('copyGeneralFiles', ['deleteDocsFolder'],function(){
     var pathsToCopy = [
         './app/**/*',
-        './app/.env',
-        './app/index.html',
-        './app/temp/styles*.css',
-        '!./app/assets/scripts/*',
-        '!./app/assets/scripts/**/*',
-        '!./app/assets/images/**',
-        '!./app/assets/styles/**',
+        '!./app/index.html',
+        '!./app/assets/client/scripts/*',
+        '!./app/assets/client/scripts/**/*',
+        '!./app/assets/client/images/**',
+        '!./app/assets/client/styles/**',
         '!./app/temp',
-        '!./app/temp/**',
-        '!./app/public/Highcharts/examples/**/*',
-        '!./app/public/Highcharts/exporting-server/**/*',
-        '!./app/public/Highcharts/gfx/**/*',
-        '!./app/public/Highcharts/graphics/**/*',
-        '!./app/public/Highcharts/api/**/*',
-        '!./**/assets/**/app',
-        '!./**/assets/**/app/**/',
-        '!./**/gulpfile.js',
-        '!./**/package.json',
-        '!./**/yarn.lock',
-        '!./**/webpack.config.js',
-        '!./**/gulp',
-        '!./**/gulp/**/*',
-
+        '!./app/assets/server',
+        '!./app/assets/server/**',
+        '!./app/temp/**'
     ];
     return gulp.src(pathsToCopy)
     .pipe(gulp.dest("./docs"));
 });
 
-gulp.task('optimizeImages',['deletedocsFolder'],function() {
+gulp.task('optimizeImages',['deleteDocsFolder'],function() {
     return gulp.src(["./app/assets/images/**/*", '!./app/assets/images/icons',"!./app/assets/images/icons/**/*"])
     .pipe(imageMin({
         progressive: true,
@@ -61,13 +38,13 @@ gulp.task('optimizeImages',['deletedocsFolder'],function() {
     .pipe(gulp.dest("./docs/assets/images"));
 });
 
-gulp.task('usemin',['deletedocsFolder', 'css','scripts'],function(){
-    return gulp.src("./app/index.html")
+gulp.task('usemin',['deleteDocsFolder', 'css','scripts'],function(){
+    return gulp.src("./app/assets/client/index.html")
     .pipe(usemin({
         css: [function(){return rev();}],
         js: [function(){return rev();}, function(){return uglify();}]
     }))
-    .pipe(gulp.dest("./docs/"));
+    .pipe(gulp.dest("./docs/assets/client/"));
 });
 
-gulp.task('build',['copyGeneralFiles']);
+gulp.task('build',['copyGeneralFiles','usemin','scripts']);

@@ -7,8 +7,17 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Gulp task",
+            "program": "${workspaceFolder}/node_modules/gulp/bin/gulp.js",
+            "args": [
+                "build"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}/app\\public\\mongodata.js"
+            "program": "${workspaceFolder}/gulp\\tasks\\scripts.js"
         }
     ]
 }

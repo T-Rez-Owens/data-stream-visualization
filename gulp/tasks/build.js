@@ -3,8 +3,11 @@ imageMin = require('gulp-imagemin'),
 del = require('del'),
 usemin = require('gulp-usemin'),
 rev = require('gulp-rev'),
+changed = require('gulp-changed'),
 uglify = require('gulp-uglify'),
-browserSync = require('browser-sync').create();
+browserSync = require('browser-sync').create(),
+argv = require('yargs').argv,
+print = require('gulp-print');
 
 gulp.task('previewDocs',['build'],function(){
     browserSync.init({
@@ -17,7 +20,10 @@ gulp.task('previewDocs',['build'],function(){
 });
 
 gulp.task('deletedocsFolder',function(){
-    return del("./docs");
+    if(!!argv.d){
+        return del("./docs");
+    }
+        
 });
 
 gulp.task('copyGeneralFiles', ['deletedocsFolder'],function(){
@@ -41,18 +47,39 @@ gulp.task('copyGeneralFiles', ['deletedocsFolder'],function(){
         '!./**/gulp/**/*',
 
     ];
+    console.log("Checking which files changed: ");
     return gulp.src(pathsToCopy)
+    .pipe(changed("./docs"))
+    .pipe(print(function(filepath) {
+        return "Copying: " + filepath;
+      }))
     .pipe(gulp.dest("./docs"));
 });
 
 gulp.task('optimizeImages',['deletedocsFolder'],function() {
-    return gulp.src(["./app/assets/images/**/*", '!./app/assets/images/icons',"!./app/assets/images/icons/**/*"])
-    .pipe(imageMin({
-        progressive: true,
-        interlaces: true,
-        multipass: true
-    }))
-    .pipe(gulp.dest("./docs/assets/images"));
+    if(!!argv.i){
+        return gulp.src(["./app/assets/images/**/*", '!./app/assets/images/icons',"!./app/assets/images/icons/**/*"])
+        .pipe(changed("./docs"))
+        .pipe(print(function(filepath) {
+            return "minifying: " + filepath;
+          }))
+        .pipe(imageMin({
+            progressive: true,
+            interlaces: true,
+            multipass: true
+        }))
+        .pipe(print(function(filepath) {
+            return "Copying image: " + filepath;
+          }))
+        .pipe(gulp.dest("./docs/assets/images"));
+    } else {
+        return gulp.src(["./app/assets/images/**/*", '!./app/assets/images/icons',"!./app/assets/images/icons/**/*"])
+        .pipe(print(function(filepath) {
+            return "Copying image: " + filepath;
+          }))
+        .pipe(gulp.dest("./docs/assets/images"));
+    }
+    
 });
 
 gulp.task('usemin',['deletedocsFolder', 'css','scripts'],function(){
@@ -61,6 +88,9 @@ gulp.task('usemin',['deletedocsFolder', 'css','scripts'],function(){
         css: [function(){return rev();}],
         js: [function(){return rev();}, function(){return uglify();}]
     }))
+    .pipe(print(function(filepath) {
+        return "code built: " + filepath;
+      }))
     .pipe(gulp.dest("./docs/"));
 });
 
