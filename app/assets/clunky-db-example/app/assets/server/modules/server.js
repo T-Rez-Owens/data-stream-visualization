@@ -1,9 +1,19 @@
-const Database = require('../modules/database');
-var MongoDB = require('../modules/MongoDB');
-var mongoReadyPromise = new MongoDB();
-//var mongoReadyPromise = new MongoDB();
+var MongoClient = require('mongodb');
+//const Database = require('../modules/database');
+const Database2 = require('../modules/MongoDB');
+require('dotenv').load();
+var uri = 'mongodb://'+process.env.USER+':'+process.env.PASS+'@'+process.env.HOST+':'+process.env.PORT+'/'+process.env.DB;
 
-console.log("my promise: ", mongoReadyPromise.then);
+//var database1 = new Database(uri);
+var database2 = new Database2(uri);
+//console.log("1 My db1: ", database1, "\nMy db2: ",database2);
+//var dbPromise = database1.connect();
+var dbPromise = database2.connect();
+//console.log("2 My db1: ", dbPromise, "\nMy db2: ", dbPromise2);
+//This will show 2 My db1: Promise {<pending>}.. etc
+
+
+//console.log("my promise: ", mongoReadyPromise.then);
 
 
 class MonServer {
@@ -14,13 +24,40 @@ class MonServer {
         return this;
     }
 
-    grabMongoData (dbNameString,callback) {
-        mongoReadyPromise.then(db => {
-            console.log(db.dbNameString);
+    grabMongoDatabaseName (callback) {
+        dbPromise.then(db => {
+            //console.log(db.s.databaseName);
+            //console.log("Connected to: ", db.s.databaseName);
+            callback(db.s.databaseName);
         },()=>{});
         
         //console.log(db.dbNameString);
-        callback(dbNameString);
+        
+    }
+    grabMongoData (callback){
+        dbPromise.then(db =>{
+            db.listCollections().toArray(function(err, collInfos) {
+                // collInfos is an array of collection info objects that look like:
+                // { name: 'test', options: {} }
+                //console.log("Hello: ", collInfos);
+                
+            });
+            var data = db.collection('points').findOne(
+                { }
+              , { _id: false }
+              , (err, data) => {
+                  if (err) reject(err)
+                  if (data) {
+                    callback(data);
+                  } else {
+                    callback({});
+                  }
+                })
+            
+            
+            
+        })
+        
     }
 
     routeHandling () {

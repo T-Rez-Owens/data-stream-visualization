@@ -1,4 +1,9 @@
 # Read Me
+run in a terminal:
+
+~~~ bash
+    jest --watch
+~~~
 
 ## Decision making process
 

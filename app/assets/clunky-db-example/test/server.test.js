@@ -2,28 +2,30 @@
 
 const MonServer = require('../app/assets/server/modules/server.js');
 
-describe('Server', () => {
+describe('MongoDB Server Should:', () => {
     let server;
     let port = 3000;
     let local = 1;
     server = new MonServer(port,local);
-    test('should say the data is peanut butter', done => {
-        var dbName = 'peanut butter';
+    test('connect to mitydata', done => {
+        var dbName = 'mitydata';
         function callback(data){
             expect(data).toBe(dbName);
             done();
         }
-    server.grabMongoData(dbName, callback);
+    server.grabMongoDatabaseName(callback);
     });
-    test('should return a report', (done) => {
-        var dbName = "mityLite";
+    test('return a single object', (done) => {
+        
         function callback(data){
-            expect(data).toBe(dbName);
+            expect(data).toHaveProperty("sensor");
             done();
         }
-        server.grabMongoData(dbName,callback);
+        server.grabMongoData(callback);
         
       });
+    
+    //These were just experiments and not needed functionality.
     test(`should set the port to ${port}`, (done) =>{
         var data = server.port;
         expect(data).toBe(port);
