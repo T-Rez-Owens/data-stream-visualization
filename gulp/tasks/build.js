@@ -7,8 +7,10 @@ changed = require('gulp-changed'),
 uglify = require('gulp-uglify'),
 browserSync = require('browser-sync').create(),
 argv = require('yargs').argv,
-print = require('gulp-print');
+print = require('gulp-print'),
+taskTime = require('gulp-total-task-time');
 
+taskTime.init();
 gulp.task('previewDocs',['build'],function(){
     browserSync.init({
 		notify: false,
@@ -35,6 +37,7 @@ gulp.task('copyGeneralFiles', ['deletedocsFolder'],function(){
         '!./app/assets/scripts/**/*',
         '!./app/assets/images/**',
         '!./app/assets/styles/**',
+        '!./app/assets/**/node_modules/**',
         '!./app/temp',
         '!./app/temp/**',
         '!./**/assets/**/app',
