@@ -1,6 +1,6 @@
 'use strict';// jshint ignore:line
 
-const Database = require('../app/assets/server/modules/database'), 
+const Database = require('./database'), 
   dbUrl = 'mongodb://localhost:27017/test', //<process.env.MONGODB_URI ||> was included in the gist this is copied from.
   assert = require('assert');
 

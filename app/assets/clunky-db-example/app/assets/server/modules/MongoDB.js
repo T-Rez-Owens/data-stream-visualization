@@ -1,13 +1,14 @@
-var MongoClient = require('mongodb');
-var assert = require('assert'),
+const MongoClient = require('mongodb').MongoClient;
+const assert = require('assert'),
     path = require('path');
 
 class MongoDB{
     constructor(uri) {
         this.uri = uri;
-        //this.db = {};
-        this.connect();
+        this.db = {};
         
+        
+        return this;
     }
 
     connect() {
@@ -23,6 +24,86 @@ class MongoDB{
             });
         });
         //module.exports = mongoReadyPromise;
+    }
+    mongoDatabaseGrabName (callback) {
+        var dbPromise = this.connect();
+        //console.log(dbPromise);
+        return dbPromise.then(db => {
+            //console.log(db.s.databaseName);
+            console.log("Connected to: ", db.s.databaseName);
+            callback(db.s.databaseName);
+        },()=>{});
+        
+        //console.log(db.dbNameString);
+        
+    }
+    mongoDataGrabOne (callback){
+        var dbPromise = this.connect();
+        return dbPromise.then(db =>{
+            let cursor = db.collection('points').findOne(
+                { }
+              , { _id: false }
+              , (err, cursor) => {
+                    if (err) reject(err)
+                    if (cursor) {
+                        callback(cursor);
+                    } else {
+                        callback({});
+                    }
+                }
+            )
+        })
+        
+    }
+    mongoDataGrabSensor(sensor, callback) {
+        var dbPromise = this.connect();
+        return dbPromise.then(db =>{
+            let cursor = db.collection('points').findOne(
+                {"sensor":sensor.sensor }
+              , { _id: false }
+              , (err, cursor) => {
+                    if (err) reject(err)
+                    if (cursor) {
+                        callback(cursor);
+                    } else {
+                        callback({});
+                    }
+                }
+            )
+        })
+    }
+    mongoDataGrabSensorArray(sensor, callback) {
+        var dbPromise = this.connect();
+        return dbPromise.then(db =>{
+            var options = {};
+            options.sensor = sensor;
+            options.limit = 10;
+            options.skip = 0;
+            var projection = { _id: false };
+            var query = this.queryDocument(options);
+            var cursor = db.collection('points').find(query);
+            cursor.project(projection);
+            cursor.limit(options.limit);
+            cursor.skip(options.skip);
+            cursor.sort([["_id",-1]]);//latest n docs without having to worry about time-stamp formatting.
+            cursor.limit(10);
+            callback(cursor);    
+        });
+    }
+    queryDocument(options) {
+            //console.log(options);
+            var query = {
+                "sensor": options.sensor.sensor,
+            };
+            //console.log(query);
+            return query;
+    }
+    mongoClose(){
+        var dbPromise = this.connect();
+        return dbPromise.then(db=>{
+            db.close();
+        })
+        
     }
 }
 
