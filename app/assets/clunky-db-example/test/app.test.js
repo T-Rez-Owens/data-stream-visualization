@@ -28,6 +28,6 @@ describe('App',function(){
             expect(res).toBe("Hello World");
             done();
         }
-        request('localhost:3000/',callback);
+        request('localhost:3000/helloWorld',callback);
     });
 })

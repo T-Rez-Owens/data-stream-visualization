@@ -37,8 +37,8 @@ class App {
         
         app.use(errorHandler);
 
-        app.get('/', function(req,res){
-            res.send("hello world");
+        app.get('/helloWorld', function(req,res){
+            res.send("Hello World");
         })
 
 
