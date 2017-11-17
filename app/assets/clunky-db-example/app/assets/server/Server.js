@@ -1,15 +1,22 @@
 var express = require('express');
-app = express();
+const App = require('./App');
+var app = new App();
+
+
+
 class Server {
     constructor() {
         return this;
     }
 
     startListening (route, callback) { 
-        let server = app.listen(3000, function() {
-            let port = server.address().port;
-            console.log('Express server listening on port %s.', port);
+        app.main((app2)=>{
+            let server = app2.listen(3000, function() {
+                let port = server.address().port;
+                console.log('Express server listening on port %s.', port);
+            });    
         });
+        
 
         function callback() {
             return 5;

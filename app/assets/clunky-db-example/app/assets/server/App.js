@@ -1,6 +1,6 @@
 var express = require('express'),
 app = express(),
-nunjucks = require('nunjucks'),
+engines = require('consolidate'),
 bodyParser = require('body-parser'),
 assert = require('assert'),
 moment = require('moment'),
@@ -11,11 +11,20 @@ class App {
     constructor() {
         return this;
     }
-    main() {
-       /*  app.use(express.static(path.join(__dirname + '/public')));
-        //app.engine('html', nunjucks);
+    superagent(url,callback) {
+        request.get(url, function(err, res){
+            if (err) throw err;
+            //console.log(res.text);
+            //console.log(res);
+            callback(res.text);
+        });
+    }
+    main(callback) {
+        app.use(express.static(path.join(__dirname + '/public')));
+        
         app.set('view engine', 'html');
         app.set('views', __dirname + '/views');
+        app.engine('html', engines.nunjucks);
         app.use(bodyParser.urlencoded({ extended: true })); 
         
         
@@ -26,8 +35,14 @@ class App {
             res.status(500).render('./client/views/error_template', { error: err });
         }
         
-        app.use(errorHandler); */
-        
+        app.use(errorHandler);
+
+        app.get('/', function(req,res){
+            res.send("hello world");
+        })
+
+
+        callback(app)
         }
     }
 
