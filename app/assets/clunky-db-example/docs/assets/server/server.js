@@ -73,7 +73,7 @@ class App {
                     console.log("Found: ", count, Sensor.sensor + " sensors");
 
                     var docs = sensorArray;
-                    res.render('sensor', { 'points': docs, 'value': value });
+                    res.render('../public/sensor.html', { 'points': docs, 'value': value });
                 });
             }
             server.mongoDataGrabSensorArray(Sensor, callback);
@@ -326,9 +326,49 @@ var _DrawLineGraph = require('./modules/DrawLineGraph');
 
 var _DrawLineGraph2 = _interopRequireDefault(_DrawLineGraph);
 
+var _DefaultInputs = require('./modules/DefaultInputs.js');
+
+var _DefaultInputs2 = _interopRequireDefault(_DefaultInputs);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var defaultInputs = new _DefaultInputs2.default();
 var drawDemoGraph = new _DrawLineGraph2.default();
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _jquery = require("jquery");
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class DefaultInputs {
+    constructor() {
+        this.inTakt = (0, _jquery2.default)(".taktLG");
+        this.inXwidth = (0, _jquery2.default)(".widthLG");
+        this.inYheight = (0, _jquery2.default)(".heightLG");
+        this.inDataLength = (0, _jquery2.default)(".numberOfPointsLG");
+        this.defaultInputs();
+        this.logInputs();
+    }
+
+    defaultInputs() {
+        this.inTakt.get(0).value = 250;
+        this.inXwidth.get(0).value = 1000;
+        this.inYheight.get(0).value = 500;
+        this.inDataLength.get(0).value = 5;
+    }
+
+    logInputs() {
+        console.log(this.inTakt.get(0).value + " , " + this.inXwidth.get(0).value + " , " + this.inYheight.get(0).value + " , " + this.inDataLength.get(0).value);
+    }
+}
+
+exports.default = DefaultInputs;
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -353,22 +393,28 @@ class DrawLineGraph {
         this.inXwidth = $(".widthLG");
         this.inYheight = $(".heightLG");
         this.inDataLength = $(".numberOfPointsLG");
-        this.sensors = $('.sensor');
+        this.sensorArray = $(".sensor").toArray();
+        //console.log(this.sensorArray);
     }
 
     events() {
         //right clicking could allow a draw graph here context menu option
-
         //Providing a button. I will need to add some fields to accept user text
         this.drawButton.click(this.drawTheGraph.bind(this));
-        sensorArray = [];
-        for (sensor of sensors) {
-            sensorArray.push(sensor);
-        }
-        console.log(sensor);
     }
 
     drawTheGraph() {
+        //console.log(this.sensorArray);
+        function myArray(sensors) {
+            var a = [];
+            for (var i = 0; i < sensors.length; i++) {
+                a.push(sensors[i].value);
+            }
+            return a;
+        }
+
+        var myA = myArray($(".sensor").toArray().reverse());
+        console.log(myA);
         var ctx = document.getElementById('myCanvas').getContext("2d");
         var yOffset = 1;
         ctx.canvas.width = this.inXwidth.get(0).value;
@@ -397,20 +443,19 @@ class DrawLineGraph {
         ctx.lineTo(xPosDest, -yPosDest);
         console.log(xPosDest + "," + "-" + yPosDest);
         drawText(xPosDest, -yPosDest);
-        for (i = 0; i < this.inDataLength.get(0).value; i++) {
-            xPosDest = xPosDest * 2;
-            yOffset = yOffset * -1;
-            yPosDest = yPosDest + yPosDest / 2 * yOffset;
+        for (var i = 0; i < myA.length; i++) {
+            xPosDest = xPosDest + ctx.canvas.width / 10;
+            yPosDest = myA[i];
+
             drawText(xPosDest, -yPosDest);
         }
         xPosDest = ctx.canvas.width / 10;
         yPosDest = ctx.canvas.height / 1.2;
         yOffset = 1;
 
-        for (var i = 0; i < this.inDataLength.get(0).value; i++) {
-            xPosDest = xPosDest * 2;
-            yOffset = yOffset * -1;
-            yPosDest = yPosDest + yPosDest / 2 * yOffset;
+        for (var i = 0; i < myA.length; i++) {
+            xPosDest = xPosDest + ctx.canvas.width / 10;
+            yPosDest = myA[i];
             createPath(xPosDest, -yPosDest);
         }
         ctx.globalCompositeOperation = "destination-over";
@@ -10357,10 +10402,15 @@ exports.default = DrawLineGraph;
 
 	var _DrawLineGraph2 = _interopRequireDefault(_DrawLineGraph);
 
+	var _DefaultInputs = __webpack_require__(3);
+
+	var _DefaultInputs2 = _interopRequireDefault(_DefaultInputs);
+
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : { default: obj };
 	}
 
+	var defaultInputs = new _DefaultInputs2.default();
 	var drawDemoGraph = new _DrawLineGraph2.default();
 
 	/***/
@@ -10412,47 +10462,31 @@ exports.default = DrawLineGraph;
 			this.inXwidth = $(".widthLG");
 			this.inYheight = $(".heightLG");
 			this.inDataLength = $(".numberOfPointsLG");
-			this.sensors = $('.sensor');
+			this.sensorArray = $(".sensor").toArray();
+			//console.log(this.sensorArray);
 		}
 
 		_createClass(DrawLineGraph, [{
 			key: 'events',
 			value: function events() {
 				//right clicking could allow a draw graph here context menu option
-
 				//Providing a button. I will need to add some fields to accept user text
 				this.drawButton.click(this.drawTheGraph.bind(this));
-				sensorArray = [];
-				var _iteratorNormalCompletion = true;
-				var _didIteratorError = false;
-				var _iteratorError = undefined;
-
-				try {
-					for (var _iterator = sensors[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-						sensor = _step.value;
-
-						sensorArray.push(sensor);
-					}
-				} catch (err) {
-					_didIteratorError = true;
-					_iteratorError = err;
-				} finally {
-					try {
-						if (!_iteratorNormalCompletion && _iterator.return) {
-							_iterator.return();
-						}
-					} finally {
-						if (_didIteratorError) {
-							throw _iteratorError;
-						}
-					}
-				}
-
-				console.log(sensor);
 			}
 		}, {
 			key: 'drawTheGraph',
 			value: function drawTheGraph() {
+				//console.log(this.sensorArray);
+				function myArray(sensors) {
+					var a = [];
+					for (var i = 0; i < sensors.length; i++) {
+						a.push(sensors[i].value);
+					}
+					return a;
+				}
+
+				var myA = myArray($(".sensor").toArray().reverse());
+				console.log(myA);
 				var ctx = document.getElementById('myCanvas').getContext("2d");
 				var yOffset = 1;
 				ctx.canvas.width = this.inXwidth.get(0).value;
@@ -10481,20 +10515,19 @@ exports.default = DrawLineGraph;
 				ctx.lineTo(xPosDest, -yPosDest);
 				console.log(xPosDest + "," + "-" + yPosDest);
 				drawText(xPosDest, -yPosDest);
-				for (i = 0; i < this.inDataLength.get(0).value; i++) {
-					xPosDest = xPosDest * 2;
-					yOffset = yOffset * -1;
-					yPosDest = yPosDest + yPosDest / 2 * yOffset;
+				for (value in myA) {
+					xPosDest = xPosDest + ctx.canvas.width / 10;
+					yPosDest = sensor.value;
+
 					drawText(xPosDest, -yPosDest);
 				}
 				xPosDest = ctx.canvas.width / 10;
 				yPosDest = ctx.canvas.height / 1.2;
 				yOffset = 1;
 
-				for (var i = 0; i < this.inDataLength.get(0).value; i++) {
-					xPosDest = xPosDest * 2;
-					yOffset = yOffset * -1;
-					yPosDest = yPosDest + yPosDest / 2 * yOffset;
+				for (value in myA) {
+					xPosDest = xPosDest + ctx.canvas.width / 10;
+					yPosDest = value;
 					createPath(xPosDest, -yPosDest);
 				}
 				ctx.globalCompositeOperation = "destination-over";
@@ -10523,6 +10556,73 @@ exports.default = DrawLineGraph;
 	}();
 
 	exports.default = DrawLineGraph;
+
+	/***/
+},
+/* 3 */
+/***/function (module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+		};
+	}();
+
+	var _jquery = __webpack_require__(0);
+
+	var _jquery2 = _interopRequireDefault(_jquery);
+
+	function _interopRequireDefault(obj) {
+		return obj && obj.__esModule ? obj : { default: obj };
+	}
+
+	function _classCallCheck(instance, Constructor) {
+		if (!(instance instanceof Constructor)) {
+			throw new TypeError("Cannot call a class as a function");
+		}
+	}
+
+	var DefaultInputs = function () {
+		function DefaultInputs() {
+			_classCallCheck(this, DefaultInputs);
+
+			this.inTakt = (0, _jquery2.default)(".taktLG");
+			this.inXwidth = (0, _jquery2.default)(".widthLG");
+			this.inYheight = (0, _jquery2.default)(".heightLG");
+			this.inDataLength = (0, _jquery2.default)(".numberOfPointsLG");
+			this.defaultInputs();
+			this.logInputs();
+		}
+
+		_createClass(DefaultInputs, [{
+			key: "defaultInputs",
+			value: function defaultInputs() {
+				this.inTakt.get(0).value = 250;
+				this.inXwidth.get(0).value = 1000;
+				this.inYheight.get(0).value = 500;
+				this.inDataLength.get(0).value = 5;
+			}
+		}, {
+			key: "logInputs",
+			value: function logInputs() {
+				console.log(this.inTakt.get(0).value + " , " + this.inXwidth.get(0).value + " , " + this.inYheight.get(0).value + " , " + this.inDataLength.get(0).value);
+			}
+		}]);
+
+		return DefaultInputs;
+	}();
+
+	exports.default = DefaultInputs;
 
 	/***/
 }]

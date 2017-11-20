@@ -11,23 +11,28 @@ class DrawLineGraph{
         this.inXwidth = $(".widthLG");
         this.inYheight = $(".heightLG");
         this.inDataLength = $(".numberOfPointsLG");
-        this.sensors = $('.sensor');
-        
+        this.sensorArray = $(".sensor").toArray();
+        //console.log(this.sensorArray);
     }
 
     events() {
         //right clicking could allow a draw graph here context menu option
-
         //Providing a button. I will need to add some fields to accept user text
         this.drawButton.click(this.drawTheGraph.bind(this));
-        sensorArray = [];
-        for (sensor of sensors){
-            sensorArray.push(sensor);
-        }
-        console.log(sensor);
     }
 
     drawTheGraph() {
+        //console.log(this.sensorArray);
+        function myArray( sensors ) {
+            var a = [];
+            for ( var i = 0; i < sensors.length; i++ ) {
+              a.push( sensors[ i ].value );
+            }
+            return(a);
+        }
+           
+        var myA = myArray( $( ".sensor" ).toArray().reverse() );
+        console.log(myA);
         var ctx = document.getElementById('myCanvas').getContext("2d");
         var yOffset = 1;
         ctx.canvas.width=this.inXwidth.get(0).value;
@@ -56,10 +61,10 @@ class DrawLineGraph{
         ctx.lineTo(xPosDest,-yPosDest);
         console.log(xPosDest + "," + "-" + yPosDest);
         drawText(xPosDest,-yPosDest);
-        for(i=0;i<this.inDataLength.get(0).value;i++){
-            xPosDest=xPosDest*2;
-            yOffset = yOffset*-1;
-            yPosDest=yPosDest+((yPosDest/2)*yOffset);
+        for ( var i = 0; i < myA.length; i++ ) {
+            xPosDest=xPosDest+(ctx.canvas.width/10);
+            yPosDest = myA[i];
+            
             drawText(xPosDest,-yPosDest);
             
         }
@@ -67,10 +72,9 @@ class DrawLineGraph{
         yPosDest = ctx.canvas.height/1.2;
         yOffset = 1;
         
-        for(var i=0;i<this.inDataLength.get(0).value;i++){
-            xPosDest=xPosDest*2;
-            yOffset = yOffset*-1;
-            yPosDest=yPosDest+((yPosDest/2)*yOffset);
+        for ( var i = 0; i < myA.length; i++ ) {
+            xPosDest=xPosDest+(ctx.canvas.width/10);
+            yPosDest=myA[i];
             createPath(xPosDest,-yPosDest);
             
         }

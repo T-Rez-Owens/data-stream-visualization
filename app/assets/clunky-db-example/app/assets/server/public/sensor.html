@@ -2,7 +2,7 @@
 <html>
 
     <head>
-        <link rel="stylesheet" href="/styles/styles-d41d8cd98f.css"/>
+        <link rel="stylesheet" href="/styles/styles-69519496c2.css"/>
         <title>Sensor</title>
         <style>
             body {
@@ -30,7 +30,7 @@
             <tr>
                 <td>{{ loop.index }}</td>
                 <td id="{{ loop.index }}.{{ loop.index -1 }}">{{ sensor.sensor }}</td>
-                <td id="{{ loop.index }}.{{ loop.index }}"><input name:"{{ sensor.sensor }}" class="{{ loop.index }}.{{ loop.index }}" value="{{ sensor.value }}" type='number'></td>
+                <td id="{{ loop.index }}.{{ loop.index }}"><input name:"{{ sensor.sensor }}" class="{{ loop.index }}.{{ loop.index }} sensor" value="{{ sensor.value }}" type='number'></td>
                 <td id="{{ loop.index }}.{{ loop.index +1 }}">{{ sensor.time }}</td>
             </tr>
 
@@ -52,6 +52,6 @@
             </div>
         </div>
         <canvas id="myCanvas" class="line-graph-canvas"></canvas>
-        <script src="/scripts/script-c8dd7ab21d.js"></script>
+        <script src="/scripts/script-4a64d1882a.js"></script>
 	</body>
 </html>

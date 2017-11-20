@@ -1,4 +1,7 @@
 #TODO
+
+☐ Clean up paths and architecture
+
 Model view controller:
     ✔ create server.js @done (11/17/2017, 12:28:31 PM)
     ✔ create app.js @done (11/17/2017, 12:28:50 PM)

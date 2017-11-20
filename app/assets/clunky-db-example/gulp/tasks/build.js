@@ -41,7 +41,7 @@ gulp.task('optimizeImages',['deleteDocsFolder'],function() {
     .pipe(gulp.dest("./docs/assets/images"));
 });
 
-gulp.task('usemin',['deleteDocsFolder', 'css','scripts'],function(){
+gulp.task('usemin',['deleteDocsFolder','deletePublicFolder', 'css','scripts'],function(){
     return gulp.src("./app/assets/server/views/sensor.html")
     .pipe(usemin({
         css: [function(){return rev();}],
@@ -50,4 +50,4 @@ gulp.task('usemin',['deleteDocsFolder', 'css','scripts'],function(){
     .pipe(gulp.dest("./app/assets/server/public/"));
 });
 
-gulp.task('build',['copyGeneralFiles','usemin','scripts']);
+gulp.task('build',['copyGeneralFiles', 'deletePublicFolder','usemin','scripts']);

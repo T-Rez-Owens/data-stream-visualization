@@ -32,7 +32,7 @@
             <tr>
                 <td>{{ loop.index }}</td>
                 <td id="{{ loop.index }}.{{ loop.index -1 }}">{{ sensor.sensor }}</td>
-                <td id="{{ loop.index }}.{{ loop.index }}"><input name:"{{ sensor.sensor }}" class="{{ loop.index }}.{{ loop.index }}" value="{{ sensor.value }}" type='number'></td>
+                <td id="{{ loop.index }}.{{ loop.index }}"><input name:"{{ sensor.sensor }}" class="{{ loop.index }}.{{ loop.index }} sensor" value="{{ sensor.value }}" type='number'></td>
                 <td id="{{ loop.index }}.{{ loop.index +1 }}">{{ sensor.time }}</td>
             </tr>
 

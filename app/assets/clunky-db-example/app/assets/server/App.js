@@ -74,7 +74,7 @@ class App {
                     console.log("Found: ",count,Sensor.sensor+" sensors");
                     
                     var docs = sensorArray;
-                    res.render('sensor', { 'points' : docs, 'value': value});
+                    res.render('../public/sensor.html', { 'points' : docs, 'value': value});
                 });
             }
             server.mongoDataGrabSensorArray(Sensor, callback);
