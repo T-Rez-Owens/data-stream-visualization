@@ -14,7 +14,7 @@ describe('MongoS Should do basic things:', () => {
             expect(data).toBe(dbName);
             done();
         }
-    server.mongoDatabaseGrabName(callback);
+        server.mongoDatabaseGrabName(callback);
     });
     test('return a single object', (done) => {
         expect.assertions(1);

@@ -4,7 +4,16 @@ engines = require('consolidate'),
 bodyParser = require('body-parser'),
 assert = require('assert'),
 moment = require('moment'),
-path = require('path');
+path = require('path'),
+DrawGraph = require('./modules/ServerDrawLineGraph'),
+MongoS = require('./modules/MongoDB');
+require('dotenv').load();
+var uri = 'mongodb://'+process.env.USER+':'+process.env.PASS+'@'+process.env.HOST+':'+process.env.PORT+'/'+process.env.DB;            
+var server;
+server = new MongoS(uri);
+
+
+
 const request = require('superagent');
 
 class App {
@@ -37,11 +46,50 @@ class App {
         
         app.use(errorHandler);
 
-        app.get('/helloWorld', function(req,res){
+        app.get('/helloWorld', function(req,res, next){
             res.send("Hello World");
-        })
-
-
+            res.send(next);
+        });
+        app.get('/', function(req,res,next){
+            res.render('add_dataPoint', {});
+        });
+        app.post('/add_dataPoint', function(req, res, next) {
+            var sensor = req.body.sensor;
+            var value = req.body.value;
+            const Sensor = {
+                sensor:sensor
+            };
+            var date = new Date();
+            var time = moment().format('llll');
+            //TODO: insert new sensor data/value.
+            
+            var sensorArray = [];
+            function callback(cursor){
+                var count = 0;
+                cursor.forEach(sensor => {
+                    count=count+1;
+                    sensorArray.push(sensor);
+                    //console.log(sensor);
+                },function(err){
+                    console.log("Found: ",count,Sensor.sensor+" sensors");
+                    
+                    var docs = sensorArray;
+                    res.render('sensor', { 'points' : docs, 'value': value});
+                });
+            }
+            server.mongoDataGrabSensorArray(Sensor, callback);
+        }); 
+       
+        app.get('/public/scripts/DrawLineGraph.js',function(req,res,next){
+            console.log("sent JS file.");
+            res.sendFile(path.resolve(__dirname + "/public/scripts/DrawLineGraph.js"));
+            
+        });
+        app.get('/public/scripts/example.js',function(req,res,next){
+            console.log("sent JS file.");
+            res.sendFile(path.resolve(__dirname + "/public/scripts/example.js"));
+            
+        });
         callback(app)
         }
     }

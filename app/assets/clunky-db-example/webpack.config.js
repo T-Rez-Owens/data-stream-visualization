@@ -3,11 +3,11 @@ var nodeExternals = require('webpack-node-externals');
 
 module.exports = {
     entry: {
-        App: "./app/assets/client/scripts/App.js" //The server side script is not run through webpack.
+        App: "./app/assets/server/views/scripts/drawPage.js" //The server side script is not run through webpack.
     },
 
     output: {
-        path: path.resolve(__dirname, "./app/assets/client/temp/scripts"),
+        path: path.resolve(__dirname, "./app/assets/server/views/scripts/temp/scripts"),
         filename: "[name].js"
     },
 

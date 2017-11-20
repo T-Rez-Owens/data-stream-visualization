@@ -1,8 +1,16 @@
 #TODO
+Model view controller:
+    ✔ create server.js @done (11/17/2017, 12:28:31 PM)
+    ✔ create app.js @done (11/17/2017, 12:28:50 PM)
+    ✔ test functionality (hello world) (jest) @done (11/17/2017, 12:29:12 PM)
+    
+    Server Template integration:
+        
+
 
 Highchart integration:
-    ☐ get and show history from MongoDB
-    ☐ modularize the above into function that can be swapped for InfluxDB, etc.
+    ☐ get and graph history from MongoDB
+    ☐ modularize the above into function that can be swapped for InfluxDB, etc. (Is that what Mongoose does?)
     ☐ Create observable
     ☐ Link observable
     ☐ Update historic chart

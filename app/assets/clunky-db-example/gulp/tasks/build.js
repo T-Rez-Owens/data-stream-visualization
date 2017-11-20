@@ -10,6 +10,9 @@ browserSync = require('browser-sync').create();
 gulp.task('deleteDocsFolder',function(){
     return del("./docs");
 });
+gulp.task('deletePublicFolder',function(){
+    return del("./app/assets/server/public/*");
+});
 
 gulp.task('copyGeneralFiles', ['deleteDocsFolder'],function(){
     var pathsToCopy = [
@@ -39,12 +42,12 @@ gulp.task('optimizeImages',['deleteDocsFolder'],function() {
 });
 
 gulp.task('usemin',['deleteDocsFolder', 'css','scripts'],function(){
-    return gulp.src("./app/assets/client/index.html")
+    return gulp.src("./app/assets/server/views/sensor.html")
     .pipe(usemin({
         css: [function(){return rev();}],
         js: [function(){return rev();}, function(){return uglify();}]
     }))
-    .pipe(gulp.dest("./docs/assets/client/"));
+    .pipe(gulp.dest("./app/assets/server/public/"));
 });
 
 gulp.task('build',['copyGeneralFiles','usemin','scripts']);

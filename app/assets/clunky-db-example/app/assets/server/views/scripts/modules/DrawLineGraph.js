@@ -1,33 +1,37 @@
-var jQuery = require('jquery');
+import jQuery from 'jquery';
 var $ = jQuery;
-//window.jQuery = require('jquery');
+window.jQuery = require('jquery');
 
 class DrawLineGraph{
-    constructor(inTakt, inXWidth, inYHeight, inDataLength) {
+    constructor() {
         this.c = $(".line-graph-canvas");
         this.drawButton = $(".draw-canvas-button");
         this.events();
-        this.inTakt = inTakt;
-        this.inXWidth = inXWidth;
-        this.inYHeight = inYHeight;
-        this.inDataLength = inDataLength;
-        console.log("created me!");
+        this.inTakt = $(".taktLG");
+        this.inXwidth = $(".widthLG");
+        this.inYheight = $(".heightLG");
+        this.inDataLength = $(".numberOfPointsLG");
+        this.sensors = $('.sensor');
+        
     }
 
     events() {
         //right clicking could allow a draw graph here context menu option
 
         //Providing a button. I will need to add some fields to accept user text
-        console.log("created event!");
         this.drawButton.click(this.drawTheGraph.bind(this));
+        sensorArray = [];
+        for (sensor of sensors){
+            sensorArray.push(sensor);
+        }
+        console.log(sensor);
     }
 
     drawTheGraph() {
-        console.log("called draw the graph!");
         var ctx = document.getElementById('myCanvas').getContext("2d");
         var yOffset = 1;
-        ctx.canvas.width=this.inXWidth.get(0).value;
-        ctx.canvas.height=this.inYHeight.get(0).value;
+        ctx.canvas.width=this.inXwidth.get(0).value;
+        ctx.canvas.height=this.inYheight.get(0).value;
         var xPosDest = ctx.canvas.width/10;
         var yPosDest = ctx.canvas.height/1.2;
         ctx.textBaseline="middle";
@@ -40,8 +44,8 @@ class DrawLineGraph{
         ctx.beginPath();
         ctx.moveTo (0,-this.inTakt.get(0).value);
         console.log(0 + "," + "-" + this.inTakt.get(0).value);
-        ctx.lineTo (this.inXWidth.get(0).value,-this.inTakt.get(0).value);
-        console.log(this.inXWidth.get(0).value + "," + "-" + this.inTakt.get(0).value);
+        ctx.lineTo (this.inXwidth.get(0).value,-this.inTakt.get(0).value);
+        console.log(this.inXwidth.get(0).value + "," + "-" + this.inTakt.get(0).value);
         ctx.strokeStyle="red";
         ctx.stroke();
 
@@ -96,4 +100,4 @@ class DrawLineGraph{
 }
 
 
-exports.module =  DrawLineGraph;
+export default DrawLineGraph;
