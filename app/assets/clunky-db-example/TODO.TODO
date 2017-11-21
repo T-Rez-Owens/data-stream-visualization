@@ -12,7 +12,8 @@ Model view controller:
 
 
 Highchart integration:
-    ☐ get and graph history from MongoDB
+    ✔ get and graph history from MongoDB using the html canvas element @done (11/20/2017, 2:32:07 PM)
+    ☐ graph the history with a highchart
     ☐ modularize the above into function that can be swapped for InfluxDB, etc. (Is that what Mongoose does?)
     ☐ Create observable
     ☐ Link observable
