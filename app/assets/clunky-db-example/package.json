@@ -25,9 +25,14 @@
     "express": "^4.16.2",
     "mongodb": "^2.2.33",
     "nunjucks": "^3.0.1",
-    "superagent": "^3.8.1"
+    "superagent": "^3.8.1",
+    "chart.js": "^2.7.1"
   },
   "devDependencies": {
-    "supertest": "^3.0.0"
+    "gulp-babel": "^7.0.0",
+    "gulp-cache-files": "0.0.2",
+    "gulp-nodemon": "^2.2.1",
+    "supertest": "^3.0.0",
+    "webpack-node-externals": "^1.6.0"
   }
 }
