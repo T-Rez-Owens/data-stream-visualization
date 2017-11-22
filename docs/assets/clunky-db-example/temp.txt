@@ -23,3 +23,33 @@ var express = require('express'),
           .catch((err) => {
             done(err);
           })
+
+
+//app.js
+
+********************************DELETE ME?*********************************************
+//server.js
+const MongoClient = require('mongodb');
+const Database = require('../modules/MongoDB');
+require('dotenv').load();
+
+//console.log("2 My db1: ", dbPromise, "\nMy db2: ", dbPromise2);
+//This will show 2 My db1: Promise {<pending>}.. etc
+if(!!process.env.LOCAL){
+    var uri = 'mongodb://'+"localhost:"+"27017"+"/test";
+    
+}else{
+    var uri = 'mongodb://'+process.env.USER+':'+process.env.PASS+'@'+process.env.HOST+':'+process.env.PORT+'/'+process.env.DB;            
+}
+
+let database = new Database(uri);
+let dbPromise = database.connect();  
+
+class Server {
+
+    constructor () {
+        return this;
+    }
+}
+
+module.exports = Server;

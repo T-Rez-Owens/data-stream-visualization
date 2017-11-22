@@ -1,8 +1,10 @@
 # Read Me
-run in a terminal:
+
+To start contributing, run the following commands in a terminal:
 
 ~~~ bash
-    jest --watch
+npm install
+jest --watch
 ~~~
 
 ## Decision making process

@@ -1,4 +1,4 @@
-import DrawALineGraph from './modules/DrawLineGraph';
+import DrawALineGraph from './modules/DrawChart';
 import SetDefaultInputs from './modules/DefaultInputs.js';
 //import LineGraph from './modules/HighchartJquery';
 //LineGraph();

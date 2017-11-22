@@ -346,9 +346,9 @@ class DrawLineGraph {
 exports.module = DrawLineGraph;
 'use strict';
 
-var _DrawLineGraph = require('./modules/DrawLineGraph');
+var _DrawChart = require('./modules/DrawChart');
 
-var _DrawLineGraph2 = _interopRequireDefault(_DrawLineGraph);
+var _DrawChart2 = _interopRequireDefault(_DrawChart);
 
 var _DefaultInputs = require('./modules/DefaultInputs.js');
 
@@ -359,7 +359,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //import LineGraph from './modules/HighchartJquery';
 //LineGraph();
 var defaultInputs = new _DefaultInputs2.default();
-var drawDemoGraph = new _DrawLineGraph2.default();
+var drawDemoGraph = new _DrawChart2.default();
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -395,6 +395,7 @@ class DefaultInputs {
 }
 
 exports.default = DefaultInputs;
+"use strict";
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
