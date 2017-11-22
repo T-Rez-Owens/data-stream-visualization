@@ -54,17 +54,24 @@ class App {
             res.render('add_dataPoint', {});
         });
         app.post('/add_dataPoint', function(req, res, next) {
-            var sensor = req.body.sensor;
+            var sensor = req.body.sensor.toString();
             var value = req.body.value;
             const Sensor = {
                 sensor:sensor
             };
             var date = new Date();
             var time = moment().format('llll');
-            //TODO: insert new sensor data/value.
-            
+            var iSensor = {
+                sensor:sensor,
+                value:value,
+                time:time
+            }
+            server.insertSensor(iSensor,callback);
+            function callback(){
+                server.mongoDataGrabSensorArray(Sensor, callback2);
+            }
             var sensorArray = [];
-            function callback(cursor){
+            function callback2(cursor){
                 var count = 0;
                 cursor.forEach(sensor => {
                     count=count+1;
@@ -77,7 +84,7 @@ class App {
                     res.render('../public/sensor.html', { 'points' : docs, 'value': value});
                 });
             }
-            server.mongoDataGrabSensorArray(Sensor, callback);
+            
         }); 
        
         app.get('/public/scripts/DrawLineGraph.js',function(req,res,next){

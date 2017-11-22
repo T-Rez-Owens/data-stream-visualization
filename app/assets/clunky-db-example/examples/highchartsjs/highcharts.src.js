@@ -228,7 +228,7 @@ function lin2log(num) {
 }
 
 /**
- * Remove last occurence of an item from an array
+ * Remove last occurrence of an item from an array
  * @param {Array} arr
  * @param {Mixed} item
  */

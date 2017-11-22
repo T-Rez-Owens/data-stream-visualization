@@ -1,5 +1,6 @@
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert'),
+    moment = require('moment'),
     path = require('path');
 
 class MongoDB{
@@ -97,6 +98,28 @@ class MongoDB{
             };
             //console.log(query);
             return query;
+    }
+    insertSensor(sensor,callback){
+        if(sensor.sensor==null){
+            console.log("bad sensor");
+        } else {
+            var dbPromise = this.connect();
+            return dbPromise.then(db =>{
+                db.collection('points').insertOne(
+                    {"sensor":sensor.sensor, "value":sensor.value, "time":sensor.time }
+                  , (err,result) => {
+                        if (err) reject(err)
+                        if (result) {
+                            console.log(`finished inserting ${result.insertedCount}  ${sensor.sensor} sensor with value:${sensor.value}`);
+                            callback(result);
+                        } else {
+                            callback({});
+                        }
+                    }
+                )
+            })
+        }
+        
     }
     mongoClose(){
         var dbPromise = this.connect();

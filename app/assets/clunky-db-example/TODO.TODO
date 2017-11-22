@@ -6,13 +6,18 @@ Model view controller:
     ✔ create server.js @done (11/17/2017, 12:28:31 PM)
     ✔ create app.js @done (11/17/2017, 12:28:50 PM)
     ✔ test functionality (hello world) (jest) @done (11/17/2017, 12:29:12 PM)
-    
+    ✔ add datapoint ability back @done (11/21/2017, 1:38:36 PM)
+
     Server Template integration:
+        ✔ Load template page that runs jS @done (11/21/2017, 9:25:22 AM)
+        
         
 
 
 Highchart integration:
     ✔ get and graph history from MongoDB using the html canvas element @done (11/20/2017, 2:32:07 PM)
+    ✔ Graph demo highchart @done (11/21/2017, 1:39:11 PM)
+    ☐ link the array from the server to the client
     ☐ graph the history with a highchart
     ☐ modularize the above into function that can be swapped for InfluxDB, etc. (Is that what Mongoose does?)
     ☐ Create observable

@@ -11,17 +11,26 @@
                 font-family: 'Helvetica', 'Arial', sans-serif;
             }
         </style>
-        
+
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        
     </head>
 
     <body>
-        
         <h1>Sensors</h1>
-
+        <div class="chart-container" style="position: relative; height:40vh; width:80vw">
+            <canvas id="myChart" width="0" height="0"></canvas>
+        </div>
+        <div class="wrapper"> 
+            <div tabindex="0" class="button draw-chart-button">
+                Click me to draw the chart!
+            </div>
+        </div>
+        
+        
         <table>
             <tr>
-                <th>Number</th>
+                <th>Most Recent</th>
                 <th>Sensor</th>
                 <th>Value</th>
                 <th>Date/Time Received</th>
@@ -32,8 +41,8 @@
             <tr>
                 <td>{{ loop.index }}</td>
                 <td id="{{ loop.index }}.{{ loop.index -1 }}">{{ sensor.sensor }}</td>
-                <td id="{{ loop.index }}.{{ loop.index }}"><input name:"{{ sensor.sensor }}" class="{{ loop.index }}.{{ loop.index }} sensor" value="{{ sensor.value }}" type='number'></td>
-                <td id="{{ loop.index }}.{{ loop.index +1 }}">{{ sensor.time }}</td>
+                <td id="{{ loop.index }}.{{ loop.index }}"><input name:"{{ sensor.sensor }}" class="{{ loop.index }}.{{ loop.index }} sensor--value" value="{{ sensor.value }}" type='float'></td>
+                <td id="{{ loop.index }}.{{ loop.index +1 }} "><input class="{{ loop.index }}.{{ loop.index }} sensor--time" value="{{ sensor.time }}"type='datetime'></td>
             </tr>
 
             {% else %}
@@ -53,7 +62,9 @@
                 Click me to draw the canvas!
             </div>
         </div>
+        
         <canvas id="myCanvas" class="line-graph-canvas"></canvas>
+        
         <!-- build:js /scripts/script.js -->
         <script src="./scripts/temp/scripts/App.js"/></script>
         <!-- endbuild -->
