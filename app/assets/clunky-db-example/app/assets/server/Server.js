@@ -1,6 +1,7 @@
+'use strict'
 var express = require('express');
-const App = require('./App');
-var app = new App();
+const Router = require('./App');
+var app = new Router();
 
 
 

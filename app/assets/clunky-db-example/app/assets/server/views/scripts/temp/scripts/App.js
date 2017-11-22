@@ -27557,9 +27557,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var $ = _jquery2.default;
 window.jQuery = __webpack_require__(7);
 
-var DrawLineGraph = function () {
-    function DrawLineGraph() {
-        _classCallCheck(this, DrawLineGraph);
+var DrawMyGraph = function () {
+    function DrawMyGraph() {
+        _classCallCheck(this, DrawMyGraph);
 
         this.c = $(".line-graph-canvas");
         this.drawCanvasButton = $(".draw-canvas-button");
@@ -27573,9 +27573,10 @@ var DrawLineGraph = function () {
         //console.log(this.sensorArray);
     }
 
-    _createClass(DrawLineGraph, [{
+    _createClass(DrawMyGraph, [{
         key: 'events',
         value: function events() {
+            console.log("button Clicked");
             //right clicking could allow a draw graph here context menu option
             //Providing a button. I will need to add some fields to accept user text
             this.drawCanvasButton.click(this.drawTheGraph.bind(this));
@@ -27744,10 +27745,10 @@ var DrawLineGraph = function () {
         }
     }]);
 
-    return DrawLineGraph;
+    return DrawMyGraph;
 }();
 
-exports.default = DrawLineGraph;
+exports.default = DrawMyGraph;
 
 /***/ }),
 /* 128 */

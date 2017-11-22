@@ -1,27 +1,27 @@
-var express = require('express'),
-app = express(),
-engines = require('consolidate'),
-bodyParser = require('body-parser'),
-assert = require('assert'),
-moment = require('moment'),
-path = require('path'),
-DrawGraph = require('./modules/ServerDrawLineGraph'),
-MongoS = require('./modules/MongoDB');
+'use strict'
+var expressApp = require('express'),
+app = expressApp(),
+enginesApp = require('consolidate'),
+bodyParserApp = require('body-parser'),
+assertApp = require('assert'),
+momentApp = require('moment'),
+pathApp = require('path'),
+MongoSApp = require('./modules/MongoDB');
 require('dotenv').load();
-var uri = 'mongodb://'+process.env.USER+':'+process.env.PASS+'@'+process.env.HOST+':'+process.env.PORT+'/'+process.env.DB;            
-var server;
-server = new MongoS(uri);
+var uriApp = 'mongodb://'+process.env.USER+':'+process.env.PASS+'@'+process.env.HOST+':'+process.env.PORT+'/'+process.env.DB;            
+var serverApp;
+serverApp = new MongoSApp(uriApp);
 
 
 
-const request = require('superagent');
+const requestApp = require('superagent');
 
 class App {
     constructor() {
         return this;
     }
     superagent(url,callback) {
-        request.get(url, function(err, res){
+        requestApp.get(url, function(err, res){
             if (err) throw err;
             //console.log(res.text);
             //console.log(res);
@@ -29,12 +29,12 @@ class App {
         });
     }
     main(callback) {
-        app.use(express.static(path.join(__dirname + '/public')));
+        app.use(expressApp.static(pathApp.join(__dirname + '/public')));
         
         app.set('view engine', 'html');
         app.set('views', __dirname + '/views');
-        app.engine('html', engines.nunjucks);
-        app.use(bodyParser.urlencoded({ extended: true })); 
+        app.engine('html', enginesApp.nunjucks);
+        app.use(bodyParserApp.urlencoded({ extended: true })); 
         
         
         // Handler for internal server errors
@@ -60,15 +60,15 @@ class App {
                 sensor:sensor
             };
             var date = new Date();
-            var time = moment().format('llll');
+            var time = momentApp().format('llll');
             var iSensor = {
                 sensor:sensor,
                 value:value,
                 time:time
             }
-            server.insertSensor(iSensor,callback);
+            serverApp.insertSensor(iSensor,callback);
             function callback(){
-                server.mongoDataGrabSensorArray(Sensor, callback2);
+                serverApp.mongoDataGrabSensorArray(Sensor, callback2);
             }
             var sensorArray = [];
             function callback2(cursor){
@@ -89,12 +89,12 @@ class App {
        
         app.get('/public/scripts/DrawLineGraph.js',function(req,res,next){
             console.log("sent JS file.");
-            res.sendFile(path.resolve(__dirname + "/public/scripts/DrawLineGraph.js"));
+            res.sendFile(pathApp.resolve(__dirname + "/public/scripts/DrawLineGraph.js"));
             
         });
         app.get('/public/scripts/example.js',function(req,res,next){
             console.log("sent JS file.");
-            res.sendFile(path.resolve(__dirname + "/public/scripts/example.js"));
+            res.sendFile(pathApp.resolve(__dirname + "/public/scripts/example.js"));
             
         });
         callback(app)

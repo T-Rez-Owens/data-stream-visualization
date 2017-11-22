@@ -1,4 +1,5 @@
-const Server = require('./Server');
-let server;
-server = new Server;
-server.startListening();
+'use strict'
+const ServerConstructor = require('./Server');
+let serverStarter;
+serverStarter = new ServerConstructor;
+serverStarter.startListening();

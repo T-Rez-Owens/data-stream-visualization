@@ -4,7 +4,7 @@ window.jQuery = require('jquery');
 import Chart from 'chart.js';
 
 
-class DrawLineGraph{
+class DrawMyGraph{
     constructor() {
         this.c = $(".line-graph-canvas");
         this.drawCanvasButton = $(".draw-canvas-button");
@@ -19,10 +19,12 @@ class DrawLineGraph{
     }
 
     events() {
+        console.log("button Clicked");
         //right clicking could allow a draw graph here context menu option
         //Providing a button. I will need to add some fields to accept user text
         this.drawCanvasButton.click(this.drawTheGraph.bind(this));
         this.drawChartButton.click(this.drawChartChart.bind(this));
+        
     }
 
     drawTheGraph() {
@@ -202,4 +204,4 @@ class DrawLineGraph{
 }
 
 
-export default DrawLineGraph;
+export default DrawMyGraph;
