@@ -59,11 +59,12 @@ class App {
             var sensor = req.body.sensor.toString();
             var value = req.body.value;
             const Sensor = {
-                sensor: sensor,
-                limit: 100
+                sensor: sensor
             };
-            var date = new Date();
-            var time = momentApp().format('llll');
+            Sensor.limit = parseInt(req.body.limit, 10) || 20;
+            var time = momentApp.utc(new Date()).format("YYYY-MM-DD HH:mm Z");
+            console.log(time);
+
             var iSensor = {
                 sensor: sensor,
                 value: value,
@@ -78,8 +79,9 @@ class App {
                 var count = 0;
                 cursor.forEach(sensor => {
                     count = count + 1;
+                    sensor.time = momentApp(new Date(sensor.time), "YYYY-MM-DD HH:mm Z");
                     sensorArray.push(sensor);
-                    //console.log(sensor);
+                    console.log(sensor);
                 }, function (err) {
                     console.log("Retrieved: ", count, Sensor.sensor + " sensors");
 
@@ -117,7 +119,7 @@ class Server {
         app.main(app2 => {
             let server = app2.listen(3000, function () {
                 let port = server.address().port;
-                console.log('Express server listening on port %s.', port);
+                console.log(`Express server listening on port ${port}`);
             });
         });
 
@@ -230,15 +232,16 @@ class MongoDB {
         return query;
     }
     insertSensor(sensor, callback) {
-        if (sensor.sensor == null) {
+
+        if (parseInt(sensor.value, 10).isNan || sensor.sensor == null) {
             console.log("bad sensor");
         } else {
             var dbPromise = this.connect();
             return dbPromise.then(db => {
-                db.collection('points').insertOne({ "sensor": sensor.sensor, "value": sensor.value, "time": sensor.time }, (err, result) => {
+                db.collection('points').insertOne({ "sensor": sensor.sensor, "value": parseInt(sensor.value, 10), "time": sensor.time }, (err, result) => {
                     if (err) reject(err);
                     if (result) {
-                        console.log(`finished inserting ${result.insertedCount}  ${sensor.sensor} sensor with value:${sensor.value}`);
+                        console.log(`finished inserting ${result.insertedCount}  ${sensor.sensor} sensor with value:${parseInt(sensor.value, 10)}`);
                         callback(result);
                     } else {
                         callback({});
@@ -3708,10 +3711,13 @@ doy:4// The week that contains Jan 4th is the first week of the year.
 //! locale : Chinese (Taiwan) [zh-tw]
 //! author : Ben : https://github.com/ben-lin
 //! author : Chris Lam : https://github.com/hehachris
-;(function(global,factory){true?factory(__webpack_require__(0)):typeof define==='function'&&define.amd?define(['../moment'],factory):factory(global.moment);})(this,function(moment){'use strict';var zhTw=moment.defineLocale('zh-tw',{months:'一月_二月_三月_四月_五月_六月_七月_八月_九月_十月_十一月_十二月'.split('_'),monthsShort:'1月_2月_3月_4月_5月_6月_7月_8月_9月_10月_11月_12月'.split('_'),weekdays:'星期日_星期一_星期二_星期三_星期四_星期五_星期六'.split('_'),weekdaysShort:'週日_週一_週二_週三_週四_週五_週六'.split('_'),weekdaysMin:'日_一_二_三_四_五_六'.split('_'),longDateFormat:{LT:'HH:mm',LTS:'HH:mm:ss',L:'YYYY年MMMD日',LL:'YYYY年MMMD日',LLL:'YYYY年MMMD日 HH:mm',LLLL:'YYYY年MMMD日dddd HH:mm',l:'YYYY年MMMD日',ll:'YYYY年MMMD日',lll:'YYYY年MMMD日 HH:mm',llll:'YYYY年MMMD日dddd HH:mm'},meridiemParse:/凌晨|早上|上午|中午|下午|晚上/,meridiemHour:function(hour,meridiem){if(hour===12){hour=0;}if(meridiem==='凌晨'||meridiem==='早上'||meridiem==='上午'){return hour;}else if(meridiem==='中午'){return hour>=11?hour:hour+12;}else if(meridiem==='下午'||meridiem==='晚上'){return hour+12;}},meridiem:function(hour,minute,isLower){var hm=hour*100+minute;if(hm<600){return'凌晨';}else if(hm<900){return'早上';}else if(hm<1130){return'上午';}else if(hm<1230){return'中午';}else if(hm<1800){return'下午';}else{return'晚上';}},calendar:{sameDay:'[今天]LT',nextDay:'[明天]LT',nextWeek:'[下]ddddLT',lastDay:'[昨天]LT',lastWeek:'[上]ddddLT',sameElse:'L'},dayOfMonthOrdinalParse:/\d{1,2}(日|月|週)/,ordinal:function(number,period){switch(period){case'd':case'D':case'DDD':return number+'日';case'M':return number+'月';case'w':case'W':return number+'週';default:return number;}},relativeTime:{future:'%s內',past:'%s前',s:'幾秒',m:'1 分鐘',mm:'%d 分鐘',h:'1 小時',hh:'%d 小時',d:'1 天',dd:'%d 天',M:'1 個月',MM:'%d 個月',y:'1 年',yy:'%d 年'}});return zhTw;});/***/},/* 126 *//***/function(module,exports,__webpack_require__){"use strict";var _DrawChart=__webpack_require__(127);var _DrawChart2=_interopRequireDefault(_DrawChart);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};}var drawDemoGraph=new _DrawChart2.default();/***/},/* 127 *//***/function(module,exports,__webpack_require__){"use strict";Object.defineProperty(exports,"__esModule",{value:true});var _createClass=function(){function defineProperties(target,props){for(var i=0;i<props.length;i++){var descriptor=props[i];descriptor.enumerable=descriptor.enumerable||false;descriptor.configurable=true;if("value"in descriptor)descriptor.writable=true;Object.defineProperty(target,descriptor.key,descriptor);}}return function(Constructor,protoProps,staticProps){if(protoProps)defineProperties(Constructor.prototype,protoProps);if(staticProps)defineProperties(Constructor,staticProps);return Constructor;};}();var _jquery=__webpack_require__(7);var _jquery2=_interopRequireDefault(_jquery);var _chart=__webpack_require__(128);var _chart2=_interopRequireDefault(_chart);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};}function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor)){throw new TypeError("Cannot call a class as a function");}}var $=_jquery2.default;window.jQuery=__webpack_require__(7);var DrawMyGraph=function(){function DrawMyGraph(){_classCallCheck(this,DrawMyGraph);this.drawChartButton=$(".draw-chart-button");this.events();this.sensorArray=$(".sensor").toArray();//console.log(this.sensorArray);
-}_createClass(DrawMyGraph,[{key:'events',value:function events(){console.log("button Clicked");//right clicking could allow a draw graph here context menu option
+;(function(global,factory){true?factory(__webpack_require__(0)):typeof define==='function'&&define.amd?define(['../moment'],factory):factory(global.moment);})(this,function(moment){'use strict';var zhTw=moment.defineLocale('zh-tw',{months:'一月_二月_三月_四月_五月_六月_七月_八月_九月_十月_十一月_十二月'.split('_'),monthsShort:'1月_2月_3月_4月_5月_6月_7月_8月_9月_10月_11月_12月'.split('_'),weekdays:'星期日_星期一_星期二_星期三_星期四_星期五_星期六'.split('_'),weekdaysShort:'週日_週一_週二_週三_週四_週五_週六'.split('_'),weekdaysMin:'日_一_二_三_四_五_六'.split('_'),longDateFormat:{LT:'HH:mm',LTS:'HH:mm:ss',L:'YYYY年MMMD日',LL:'YYYY年MMMD日',LLL:'YYYY年MMMD日 HH:mm',LLLL:'YYYY年MMMD日dddd HH:mm',l:'YYYY年MMMD日',ll:'YYYY年MMMD日',lll:'YYYY年MMMD日 HH:mm',llll:'YYYY年MMMD日dddd HH:mm'},meridiemParse:/凌晨|早上|上午|中午|下午|晚上/,meridiemHour:function(hour,meridiem){if(hour===12){hour=0;}if(meridiem==='凌晨'||meridiem==='早上'||meridiem==='上午'){return hour;}else if(meridiem==='中午'){return hour>=11?hour:hour+12;}else if(meridiem==='下午'||meridiem==='晚上'){return hour+12;}},meridiem:function(hour,minute,isLower){var hm=hour*100+minute;if(hm<600){return'凌晨';}else if(hm<900){return'早上';}else if(hm<1130){return'上午';}else if(hm<1230){return'中午';}else if(hm<1800){return'下午';}else{return'晚上';}},calendar:{sameDay:'[今天]LT',nextDay:'[明天]LT',nextWeek:'[下]ddddLT',lastDay:'[昨天]LT',lastWeek:'[上]ddddLT',sameElse:'L'},dayOfMonthOrdinalParse:/\d{1,2}(日|月|週)/,ordinal:function(number,period){switch(period){case'd':case'D':case'DDD':return number+'日';case'M':return number+'月';case'w':case'W':return number+'週';default:return number;}},relativeTime:{future:'%s內',past:'%s前',s:'幾秒',m:'1 分鐘',mm:'%d 分鐘',h:'1 小時',hh:'%d 小時',d:'1 天',dd:'%d 天',M:'1 個月',MM:'%d 個月',y:'1 年',yy:'%d 年'}});return zhTw;});/***/},/* 126 *//***/function(module,exports,__webpack_require__){"use strict";var _DrawChart=__webpack_require__(127);var _DrawChart2=_interopRequireDefault(_DrawChart);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};}var drawDemoGraph=new _DrawChart2.default();/***/},/* 127 *//***/function(module,exports,__webpack_require__){"use strict";Object.defineProperty(exports,"__esModule",{value:true});var _createClass=function(){function defineProperties(target,props){for(var i=0;i<props.length;i++){var descriptor=props[i];descriptor.enumerable=descriptor.enumerable||false;descriptor.configurable=true;if("value"in descriptor)descriptor.writable=true;Object.defineProperty(target,descriptor.key,descriptor);}}return function(Constructor,protoProps,staticProps){if(protoProps)defineProperties(Constructor.prototype,protoProps);if(staticProps)defineProperties(Constructor,staticProps);return Constructor;};}();var _jquery=__webpack_require__(7);var _jquery2=_interopRequireDefault(_jquery);var _chart=__webpack_require__(128);var _chart2=_interopRequireDefault(_chart);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};}function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor)){throw new TypeError("Cannot call a class as a function");}}var $=_jquery2.default;window.jQuery=__webpack_require__(7);var moment=__webpack_require__(0);var DrawMyGraph=function(){function DrawMyGraph(){_classCallCheck(this,DrawMyGraph);this.drawChartButton=$(".draw-chart-button");this.events();this.sensorArray=$(".sensor").toArray();//console.log(this.sensorArray);
+}_createClass(DrawMyGraph,[{key:'events',value:function events(){//right clicking could allow a draw graph here context menu option
 //Providing a button. I will need to add some fields to accept user text
-this.drawChartButton.click(this.drawChartChart.bind(this));}},{key:'getArrayValues',value:function getArrayValues(){function myArray(sensors){var a=[];for(var i=0;i<sensors.length;i++){a.push(sensors[i].value);}return a;}var myA=myArray($(".sensor--value").toArray().reverse());console.log(myA);return myA;}},{key:'getArrayTimes',value:function getArrayTimes(){function myArray(sensors){var a=[];for(var i=0;i<sensors.length;i++){a.push(sensors[i].value);}return a;}var myA=myArray($(".sensor--time").toArray().reverse());console.log(myA);return myA;}},{key:'drawChartChart',value:function drawChartChart(){var myAValues=this.getArrayValues();var myATimes=this.getArrayTimes();var myAName="lux";var timeFormat='MM/DD/YYYY HH:mm';console.log("chart:",myAValues);var ctx=document.getElementById("myChart").getContext("2d");var myChart=new _chart2.default(ctx,{type:'line',data:{labels:myATimes,datasets:[{label:myAName,data:myAValues,pointRadius:5,pointHitRadius:25,fill:false,lineTension:0,spanGaps:false,backgroundColor:['rgba(255, 99, 132, 0.2)'],borderColor:['rgba(255,99,132,1)'],borderWidth:1}]},options:{responsive:true,title:{display:true,text:"Chart.js Time Point Data"},scales:{xAxes:[{type:"time",round:"day",display:true,scaleLabel:{display:true,labelString:'Date'},ticks:{major:{fontStyle:"bold",fontColor:"#FF0000"}}}],yAxes:[{display:true,scaleLabel:{display:true,labelString:'value'}}]},elements:{point:{pointStyle:'star'}}}});//myChart.canvas.parentNode.style.height = ;
+this.drawChartButton.click(this.drawChartChart.bind(this));}},{key:'getArrayValues',value:function getArrayValues(){function myArray(sensors){var a=[];for(var i=0;i<sensors.length;i++){a.push(sensors[i].value);}return a;}var myA=myArray($(".sensor--value").toArray().reverse());//console.log(myA);
+return myA;}},{key:'getArrayTimes',value:function getArrayTimes(){function myArray(sensors){var a=[];for(var i=0;i<sensors.length;i++){a.push(moment(new Date(sensors[i].value)).local());}return a;}var myA=myArray($(".sensor--time").toArray().reverse());//console.log(myA);
+return myA;}},{key:'drawChartChart',value:function drawChartChart(){var myAValues=this.getArrayValues();var myATimes=this.getArrayTimes();var myAName="lux";var timeFormat='MM/DD/YYYY HH:mm';//console.log("chart:", myAValues);
+var ctx=document.getElementById("myChart").getContext("2d");var myChart=new _chart2.default(ctx,{type:'line',data:{labels:myATimes,datasets:[{label:myAName,data:myAValues,pointRadius:5,pointHitRadius:25,fill:false,lineTension:0,spanGaps:false,backgroundColor:['rgba(255, 99, 132, 0.2)'],borderColor:['rgba(255,99,132,1)'],borderWidth:1}]},options:{responsive:true,title:{display:true,text:"Chart.js Time Point Data"},scales:{xAxes:[{type:"time",round:"day",display:true,scaleLabel:{display:true,labelString:'Date'},ticks:{major:{fontStyle:"bold",fontColor:"#FF0000"}}}],yAxes:[{display:true,scaleLabel:{display:true,labelString:'value'}}]},elements:{point:{pointStyle:'star'}}}});//myChart.canvas.parentNode.style.height = ;
 console.log(myChart.canvas.parentNode.style.height);}}]);return DrawMyGraph;}();exports.default=DrawMyGraph;/***/},/* 128 *//***/function(module,exports,__webpack_require__){/**
  * @namespace Chart
  */var Chart=__webpack_require__(129)();Chart.helpers=__webpack_require__(1);// @todo dispatch these helpers into appropriated helpers/helpers.* file and write unit tests!

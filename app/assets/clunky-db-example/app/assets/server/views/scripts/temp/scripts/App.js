@@ -27550,6 +27550,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var $ = _jquery2.default;
 window.jQuery = __webpack_require__(7);
 
+var moment = __webpack_require__(0);
+
 var DrawMyGraph = function () {
     function DrawMyGraph() {
         _classCallCheck(this, DrawMyGraph);
@@ -27563,7 +27565,6 @@ var DrawMyGraph = function () {
     _createClass(DrawMyGraph, [{
         key: 'events',
         value: function events() {
-            console.log("button Clicked");
             //right clicking could allow a draw graph here context menu option
             //Providing a button. I will need to add some fields to accept user text
             this.drawChartButton.click(this.drawChartChart.bind(this));
@@ -27580,7 +27581,7 @@ var DrawMyGraph = function () {
             }
 
             var myA = myArray($(".sensor--value").toArray().reverse());
-            console.log(myA);
+            //console.log(myA);
             return myA;
         }
     }, {
@@ -27589,13 +27590,13 @@ var DrawMyGraph = function () {
             function myArray(sensors) {
                 var a = [];
                 for (var i = 0; i < sensors.length; i++) {
-                    a.push(sensors[i].value);
+                    a.push(moment(new Date(sensors[i].value)).local());
                 }
                 return a;
             }
 
             var myA = myArray($(".sensor--time").toArray().reverse());
-            console.log(myA);
+            //console.log(myA);
             return myA;
         }
     }, {
@@ -27605,7 +27606,7 @@ var DrawMyGraph = function () {
             var myATimes = this.getArrayTimes();
             var myAName = "lux";
             var timeFormat = 'MM/DD/YYYY HH:mm';
-            console.log("chart:", myAValues);
+            //console.log("chart:", myAValues);
             var ctx = document.getElementById("myChart").getContext("2d");
             var myChart = new _chart2.default(ctx, {
                 type: 'line',
@@ -27662,7 +27663,7 @@ var DrawMyGraph = function () {
                 }
             });
             //myChart.canvas.parentNode.style.height = ;
-            console.log(myChart.canvas.parentNode.style.height);
+            //console.log(myChart.canvas.parentNode.style.height);
         }
     }]);
 
