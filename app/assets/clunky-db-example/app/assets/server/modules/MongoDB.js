@@ -105,17 +105,18 @@ class MongoDB{
             return query;
     }
     insertSensor(sensor,callback){
-        if(sensor.sensor==null){
+      
+        if(parseInt(sensor.value,10).isNan || sensor.sensor==null){
             console.log("bad sensor");
         } else {
             var dbPromise = this.connect();
             return dbPromise.then(db =>{
                 db.collection('points').insertOne(
-                    {"sensor":sensor.sensor, "value":sensor.value, "time":sensor.time }
+                    {"sensor":sensor.sensor, "value":parseInt(sensor.value,10), "time":sensor.time }
                   , (err,result) => {
                         if (err) reject(err)
                         if (result) {
-                            console.log(`finished inserting ${result.insertedCount}  ${sensor.sensor} sensor with value:${sensor.value}`);
+                            console.log(`finished inserting ${result.insertedCount}  ${sensor.sensor} sensor with value:${parseInt(sensor.value,10)}`);
                             callback(result);
                         } else {
                             callback({});

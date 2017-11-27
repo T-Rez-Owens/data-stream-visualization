@@ -62,8 +62,8 @@ class App {
             var value = req.body.value;
             const Sensor = {
                 sensor:sensor,
-                limit:100
             };
+            Sensor.limit = req.body.limit || 20;
             var date = new Date();
             var time = momentApp().format('llll');
             var iSensor = {

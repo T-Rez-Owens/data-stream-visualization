@@ -14,7 +14,7 @@ class Server {
         app.main((app2)=>{
             let server = app2.listen(3000, function() {
                 let port = server.address().port;
-                console.log('Express server listening on port %s.', port);
+                console.log(`Express server listening on port ${port}`);
             });    
         });
         
