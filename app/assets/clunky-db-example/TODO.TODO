@@ -11,7 +11,11 @@ Model view controller:
     Server Template integration:
         ✔ Load template page that runs jS @done (11/21/2017, 9:25:22 AM)
         
-        
+
+MongoDB integration:
+    ✔ retrieve most recent 10 @done (11/27/2017, 8:57:41 AM)
+    ☐ retrieve entire array
+    ☐ retrieve date range
 
 
 Chart.js integration:
@@ -22,6 +26,7 @@ Chart.js integration:
     ✔ change text to white default @done (11/22/2017, 1:53:49 PM)
     ✔ remove unused form @done (11/22/2017, 1:56:17 PM)
     ✔ rebuild/sync from data-stream-visualization (github) @done (11/22/2017, 1:56:56 PM)
+    
     ☐ pipe to static-data-visualization (github) 
     ☐ pipe that to clunky-db-example (glitch)
         ☐ create gulp task for above pipeline?

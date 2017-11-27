@@ -43,7 +43,11 @@ class App {
             console.error(err.stack);
             res.status(500).render('./client/views/error_template', { error: err });
         }
-        
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+        }
         app.use(errorHandler);
 
         app.get('/helloWorld', function(req,res, next){
@@ -51,13 +55,14 @@ class App {
             res.send(next);
         });
         app.get('/', function(req,res,next){
-            res.render('add_dataPoint', {});
+            res.render('add_dataPoint', {'randomInt':getRandomInt(0,5500)});
         });
         app.post('/add_dataPoint', function(req, res, next) {
             var sensor = req.body.sensor.toString();
             var value = req.body.value;
             const Sensor = {
-                sensor:sensor
+                sensor:sensor,
+                limit:100
             };
             var date = new Date();
             var time = momentApp().format('llll');
@@ -78,7 +83,7 @@ class App {
                     sensorArray.push(sensor);
                     //console.log(sensor);
                 },function(err){
-                    console.log("Found: ",count,Sensor.sensor+" sensors");
+                    console.log("Retrieved: ", count,Sensor.sensor+" sensors");
                     
                     var docs = sensorArray;
                     res.render('../public/sensor.html', { 'points' : docs, 'value': value});

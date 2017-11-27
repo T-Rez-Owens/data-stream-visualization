@@ -78,16 +78,21 @@ class MongoDB{
         return dbPromise.then(db =>{
             var options = {};
             options.sensor = sensor;
-            options.limit = 10;
+            options.limit = sensor.limit !== undefined ? sensor.limit : 10;
             options.skip = 0;
             var projection = { _id: false };
             var query = this.queryDocument(options);
             var cursor = db.collection('points').find(query);
             cursor.project(projection);
+            db.collection('points').find(query).count(function(err,numOfSensors){
+                console.log(`Returning ${options.limit} of ${numOfSensors}`);
+                
+            });
+            
+            
             cursor.limit(options.limit);
             cursor.skip(options.skip);
             cursor.sort([["_id",-1]]);//latest n docs without having to worry about time-stamp formatting.
-            cursor.limit(10);
             callback(cursor);    
         });
     }
