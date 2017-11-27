@@ -27518,15 +27518,8 @@ var _DrawChart = __webpack_require__(127);
 
 var _DrawChart2 = _interopRequireDefault(_DrawChart);
 
-var _DefaultInputs = __webpack_require__(177);
-
-var _DefaultInputs2 = _interopRequireDefault(_DefaultInputs);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-//import LineGraph from './modules/HighchartJquery';
-//LineGraph();
-var defaultInputs = new _DefaultInputs2.default();
 var drawDemoGraph = new _DrawChart2.default();
 
 /***/ }),
@@ -40717,59 +40710,6 @@ module.exports = function(Chart) {
 	};
 };
 
-
-/***/ }),
-/* 177 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _jquery = __webpack_require__(7);
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var DefaultInputs = function () {
-    function DefaultInputs() {
-        _classCallCheck(this, DefaultInputs);
-
-        this.inTakt = (0, _jquery2.default)(".taktLG");
-        this.inXwidth = (0, _jquery2.default)(".widthLG");
-        this.inYheight = (0, _jquery2.default)(".heightLG");
-        this.inDataLength = (0, _jquery2.default)(".numberOfPointsLG");
-        this.defaultInputs();
-        this.logInputs();
-    }
-
-    _createClass(DefaultInputs, [{
-        key: "defaultInputs",
-        value: function defaultInputs() {
-            this.inTakt.get(0).value = 250;
-            this.inXwidth.get(0).value = 1000;
-            this.inYheight.get(0).value = 500;
-            this.inDataLength.get(0).value = 5;
-        }
-    }, {
-        key: "logInputs",
-        value: function logInputs() {
-            console.log(this.inTakt.get(0).value + " , " + this.inXwidth.get(0).value + " , " + this.inYheight.get(0).value + " , " + this.inDataLength.get(0).value);
-        }
-    }]);
-
-    return DefaultInputs;
-}();
-
-exports.default = DefaultInputs;
 
 /***/ })
 /******/ ]);

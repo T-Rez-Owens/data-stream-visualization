@@ -350,15 +350,8 @@ var _DrawChart = require('./modules/DrawChart');
 
 var _DrawChart2 = _interopRequireDefault(_DrawChart);
 
-var _DefaultInputs = require('./modules/DefaultInputs.js');
-
-var _DefaultInputs2 = _interopRequireDefault(_DefaultInputs);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-//import LineGraph from './modules/HighchartJquery';
-//LineGraph();
-var defaultInputs = new _DefaultInputs2.default();
 var drawDemoGraph = new _DrawChart2.default();
 "use strict";
 
