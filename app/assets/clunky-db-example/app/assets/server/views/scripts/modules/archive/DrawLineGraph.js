@@ -178,7 +178,7 @@ class DrawMyGraph{
                     type: "time",
                     time: {
                         format: timeFormat,
-                        // round: 'day'
+                        round: 'day',
                         tooltipFormat: 'll HH:mm'
                     },
                     scaleLabel: {

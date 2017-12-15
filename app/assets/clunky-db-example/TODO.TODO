@@ -15,7 +15,8 @@ Model view controller:
 MongoDB integration:
     ✔ retrieve most recent 10 @done (11/27/2017, 8:57:41 AM)
     ✔ retrieve entire array (within specified limits) @done (11/27/2017, 10:35:00 AM)
-    ☐ retrieve date range
+    ✔ retrieve date range @done (12/6/2017, 7:20:17 AM)
+    ✔ Get only instead of get and insert @done (12/6/2017, 7:20:12 AM)
 
 
 Chart.js integration:

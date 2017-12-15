@@ -12,6 +12,7 @@ require('dotenv').load();
 var uriApp = 'mongodb://' + process.env.USER + ':' + process.env.PASS + '@' + process.env.HOST + ':' + process.env.PORT + '/' + process.env.DB;
 var serverApp;
 serverApp = new MongoSApp(uriApp);
+var XLSX = require('XLSX');
 
 const requestApp = require('superagent');
 
@@ -53,6 +54,46 @@ class App {
             res.send(next);
         });
         app.get('/', function (req, res, next) {
+            res.render('../public/home');
+        });
+        app.get('/view_dataPoint', function (req, res, next) {
+            res.render('../public/viewData');
+        });
+        app.post('/view_dataPoint', function (req, res, next) {
+            var sensor = req.body.sensor.toString();
+            var query1 = new Date(req.body.query1);
+            console.log(query1);
+            var query2 = new Date(req.body.query2);
+            console.log(query2);
+
+            const Sensor = {
+                sensor: sensor
+            };
+            Sensor.limit = parseInt(req.body.limit, 10) || 20;
+            //var time = momentApp.utc(new Date()).format("YYYY-MM-DD HH:mm Z");
+            //console.log(time);
+
+            var iSensor = {
+                sensor: sensor
+            };
+            var sensorArray = [];
+            serverApp.mongoDataGrabSensorArray(Sensor, callback2);
+            function callback2(cursor) {
+                var count = 0;
+                cursor.forEach(sensor => {
+                    count = count + 1;
+                    sensor.time = momentApp(new Date(sensor.time), "YYYY-MM-DD HH:mm Z");
+                    sensorArray.push(sensor);
+                    console.log(sensor);
+                }, function (err) {
+                    console.log("Retrieved: ", count, Sensor.sensor + " sensors");
+
+                    var docs = sensorArray;
+                    res.render('../public/sensor.html', { 'points': docs });
+                });
+            }
+        });
+        app.get('/add_dataPoint', function (req, res, next) {
             res.render('add_dataPoint', { 'randomInt': getRandomInt(0, 5500) });
         });
         app.post('/add_dataPoint', function (req, res, next) {
@@ -98,6 +139,138 @@ class App {
         app.get('/public/scripts/example.js', function (req, res, next) {
             console.log("sent JS file.");
             res.sendFile(pathApp.resolve(__dirname + "/public/scripts/example.js"));
+        });
+        app.get('/schedule', function (req, res, next) {
+            if (typeof require !== 'undefined') XLSX = require('xlsx');
+            var workbook = XLSX.readFile('\\\\OFS1\\SHARED\\USERS\\MFG\\SHARED\\Chairs Powder Coating\\PC SCHEDULE 2017.xlsx');
+
+            var date = momentApp(new Date());
+            //console.log(parseInt(req.query.dow));
+            var dow = parseInt(req.query.dow) || date.day(); //since dow is not going to be 0 for sunday this works. if I wanted to use sunday I'd have to re-think this logic.
+            //console.log(dow);
+            var dowA = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+            switch (dow) {
+                case 0:
+                    //SUNDAY
+                    //spend this time well!
+                    break;
+                case 6:
+                    //SATURDAY
+                    console.log("enjoy your weekend!");
+                    break;
+                default:
+                    var dowToday = dowA[dow];
+                    console.log(dowToday);
+            }
+
+            /* DO SOMETHING WITH workbook HERE */
+            var first_sheet_name = workbook.SheetNames[0];
+            var address_of_cell = 'G3';
+
+            /* Get worksheet */
+            var ws = workbook.Sheets[dowToday];
+
+            /* Find desired cell */
+            var desired_cell = ws[address_of_cell];
+            var desired_range;
+            //console.log(ws['!ref']);
+            /* Get the value */
+
+            var desired_value = desired_cell ? desired_cell.v : undefined;
+            var sheet2arr = function (sheet, range2Arr) {
+                var result = [];
+                var row;
+                var rowNum;
+                var colNum;
+                var range = XLSX.utils.decode_range(range2Arr);
+                for (rowNum = range.s.r; rowNum <= range.e.r; rowNum++) {
+                    row = [];
+                    for (colNum = range.s.c; colNum <= range.e.c; colNum++) {
+                        var nextCell = sheet[XLSX.utils.encode_cell({ r: rowNum, c: colNum })];
+                        if (typeof nextCell === 'undefined') {
+                            row.push(void 0);
+                        } else row.push(nextCell.w);
+                    }
+                    result.push(row);
+                }
+                return result;
+            };
+            var vA = sheet2arr(ws, 'G3:G12');
+            var pA = sheet2arr(ws, 'F3:F12');
+
+            //console.log(sA);
+            var orderArray = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th'];
+            res.render('../public/schedule', { orderArray: orderArray, productArray: pA, valueArray: vA, sdow: dowToday, dow: dow });
+        });
+
+        app.get('/partNumberGen', function (req, res, next) {
+
+            var RLO = req.query.rlo || 171317;
+            RLO = parseInt(RLO);
+            var productOffering = {
+                productLine: {
+                    "Comfort": {
+                        "leg": '1232LegPartNum123', "front": '1232FrontPartNum123', "stack-bar": '1232StackBarPartNum123', 'seat-support': '1232SeatSupportPartNum123',
+                        backShape: { "HG": 40, "SQ": 40, "RN": 40, "OV": 40, "CR": 50, "GEN-CR": 56 },
+                        backOption: ["Flex", "Fixed"],
+                        options: ["Arm", "GA", "Ret-GA"]
+                    },
+                    "Encore": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "G2": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "G6": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "Eon": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "A3": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "Elite": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    }
+                }
+
+            };
+            var part = {
+                productLine: { "Comfort": { "leg": '109718', "front": '109716 or 109719', "stack-bar": '111231', 'seat-support': '111165' } },
+                backShape: { "HG": '1098xx' },
+                backOption: ["Flex"],
+                options: { "Arms": 'xxxxxx', "Ret-GA": 'xxxxxx' }
+            };
+            var partNumbers = {
+                productLine: {
+                    "Comfort": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "Encore": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "G2": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "G6": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "Eon": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "A3": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "Elite": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    }
+                },
+                backShape: { "HG": 40, "SQ": 40, "RN": 40, "OV": 40, "CR": 50, "GEN-CR": 56 },
+                backOption: "Flex",
+                options: ["Arm", "Ret-GA"]
+            };
+            res.render('../public/partNumberGen', { RLO: RLO, part: part });
         });
         callback(app);
     }
@@ -574,7 +747,7 @@ class DrawMyGraph {
                     type: "time",
                     time: {
                         format: timeFormat,
-                        // round: 'day'
+                        round: 'day',
                         tooltipFormat: 'll HH:mm'
                     },
                     scaleLabel: {
@@ -3716,9 +3889,10 @@ doy:4// The week that contains Jan 4th is the first week of the year.
 //Providing a button. I will need to add some fields to accept user text
 this.drawChartButton.click(this.drawChartChart.bind(this));}},{key:'getArrayValues',value:function getArrayValues(){function myArray(sensors){var a=[];for(var i=0;i<sensors.length;i++){a.push(sensors[i].value);}return a;}var myA=myArray($(".sensor--value").toArray().reverse());//console.log(myA);
 return myA;}},{key:'getArrayTimes',value:function getArrayTimes(){function myArray(sensors){var a=[];for(var i=0;i<sensors.length;i++){a.push(moment(new Date(sensors[i].value)).local());}return a;}var myA=myArray($(".sensor--time").toArray().reverse());//console.log(myA);
-return myA;}},{key:'drawChartChart',value:function drawChartChart(){var myAValues=this.getArrayValues();var myATimes=this.getArrayTimes();var myAName="lux";var timeFormat='MM/DD/YYYY HH:mm';//console.log("chart:", myAValues);
-var ctx=document.getElementById("myChart").getContext("2d");var myChart=new _chart2.default(ctx,{type:'line',data:{labels:myATimes,datasets:[{label:myAName,data:myAValues,pointRadius:5,pointHitRadius:25,fill:false,lineTension:0,spanGaps:false,backgroundColor:['rgba(255, 99, 132, 0.2)'],borderColor:['rgba(255,99,132,1)'],borderWidth:1}]},options:{responsive:true,title:{display:true,text:"Chart.js Time Point Data"},scales:{xAxes:[{type:"time",round:"day",display:true,scaleLabel:{display:true,labelString:'Date'},ticks:{major:{fontStyle:"bold",fontColor:"#FF0000"}}}],yAxes:[{display:true,scaleLabel:{display:true,labelString:'value'}}]},elements:{point:{pointStyle:'star'}}}});//myChart.canvas.parentNode.style.height = ;
-console.log(myChart.canvas.parentNode.style.height);}}]);return DrawMyGraph;}();exports.default=DrawMyGraph;/***/},/* 128 *//***/function(module,exports,__webpack_require__){/**
+return myA;}},{key:'drawChartChart',value:function drawChartChart(){var myAValues=this.getArrayValues();var myATimes=this.getArrayTimes();var myAName="Pressure Data";var timeFormat='MM/DD/YYYY HH:mm';//console.log("chart:", myAValues);
+var ctx=document.getElementById("myChart").getContext("2d");var myChart=new _chart2.default(ctx,{type:'line',data:{labels:myATimes,datasets:[{label:myAName,data:myAValues,pointRadius:5,pointHitRadius:25,fill:false,lineTension:0,spanGaps:false,backgroundColor:['rgba(255, 99, 132, 0.2)'],borderColor:['rgba(255,99,132,1)'],borderWidth:1}]},options:{responsive:true,title:{display:true,text:"Chart.js Time Point Data"},scales:{xAxes:[{type:"time",time:{unit:'day',unitStepSize:1,displayFormats:{'day':'MMM DD'}},display:true,scaleLabel:{display:true,labelString:'Date'},ticks:{major:{fontStyle:"bold",fontColor:"#FF0000"}}}],yAxes:[{display:true,scaleLabel:{display:true,labelString:'value'}}]},elements:{point:{pointStyle:'star'}}}});//myChart.canvas.parentNode.style.height = ;
+//console.log(myChart.canvas.parentNode.style.height);
+}}]);return DrawMyGraph;}();exports.default=DrawMyGraph;/***/},/* 128 *//***/function(module,exports,__webpack_require__){/**
  * @namespace Chart
  */var Chart=__webpack_require__(129)();Chart.helpers=__webpack_require__(1);// @todo dispatch these helpers into appropriated helpers/helpers.* file and write unit tests!
 __webpack_require__(133)(Chart);Chart.defaults=__webpack_require__(2);Chart.Element=__webpack_require__(3);Chart.elements=__webpack_require__(4);Chart.Interaction=__webpack_require__(9);Chart.platform=__webpack_require__(10);__webpack_require__(144)(Chart);__webpack_require__(145)(Chart);__webpack_require__(146)(Chart);__webpack_require__(147)(Chart);__webpack_require__(148)(Chart);__webpack_require__(149)(Chart);__webpack_require__(150)(Chart);__webpack_require__(151)(Chart);__webpack_require__(152)(Chart);__webpack_require__(153)(Chart);__webpack_require__(154)(Chart);__webpack_require__(155)(Chart);__webpack_require__(156)(Chart);__webpack_require__(157)(Chart);// Controllers must be loaded after elements

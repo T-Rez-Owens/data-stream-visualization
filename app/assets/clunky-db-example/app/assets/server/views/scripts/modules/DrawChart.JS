@@ -48,7 +48,7 @@ class DrawMyGraph{
     drawChartChart(){
         var myAValues = this.getArrayValues( );
         var myATimes = this.getArrayTimes();
-        var myAName = "lux";
+        var myAName = "Pressure Data";
         var timeFormat = 'MM/DD/YYYY HH:mm';
         //console.log("chart:", myAValues);
         var ctx = document.getElementById("myChart").getContext("2d");
@@ -82,7 +82,13 @@ class DrawMyGraph{
 				scales: {
 					xAxes: [{
                         type: "time",
-                        round: "day",
+                        time: {
+                            unit: 'day',
+                            unitStepSize: 1,
+                            displayFormats: {
+                               'day': 'MMM DD'
+                            }
+                        },
 						display: true,
 						scaleLabel: {
 							display: true,
