@@ -44,11 +44,14 @@ class DrawMyGraph{
         //console.log(myA);
         return myA;
     }
-    
+    getChartName(){
+        //TODO dynamically get this from the sensor chosen.
+        return "Pressure Data";
+    }
     drawChartChart(){
         var myAValues = this.getArrayValues( );
         var myATimes = this.getArrayTimes();
-        var myAName = "Pressure Data";
+        var myAName = this.getChartName();
         var timeFormat = 'MM/DD/YYYY HH:mm';
         //console.log("chart:", myAValues);
         var ctx = document.getElementById("myChart").getContext("2d");
