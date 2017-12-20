@@ -217,7 +217,15 @@ class App {
             res.render('../public/schedule',{orderArray:orderArray,productArray:pA, valueArray:vA, sdow:dowToday,dow:dow});
             
         });
-
+        app.get('/product',function(req,res,next){
+            var product = {
+                name:"hourglass",
+                partsPerHour:10.5,
+                time: new Date()
+            }
+            console.log(product);
+           res.render("../public/product",{product:product});
+        });
         app.get('/partNumberGen',function(req, res, next){
             
             var RLO = req.query.rlo || 171317;

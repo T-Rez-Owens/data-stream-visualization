@@ -26,9 +26,9 @@ class DrawMyGraph{
             }
             return(a);
         }
-           
+        console.log($( ".sensor--value" ).toArray());
         var myA = myArray( $( ".sensor--value" ).toArray().reverse() );
-        //console.log(myA);
+        console.log(myA);
         return myA;
     }
     getArrayTimes(){
@@ -39,14 +39,22 @@ class DrawMyGraph{
             }
             return(a);
         }
-           
+        console.log($( ".sensor--time" ).toArray());   
         var myA = myArray( $( ".sensor--time" ).toArray().reverse() );
-        //console.log(myA);
+        console.log(myA);
         return myA;
     }
     getChartName(){
         //TODO dynamically get this from the sensor chosen.
-        return "Pressure Data";
+        function myArray( sensors ) {
+            var a = [];
+            a.push(sensors[0].textContent);
+            return(a);
+        }
+        //console.log($( ".sensor--name" ).toArray());
+        var myA = myArray( $( ".sensor--name" ).toArray() );
+        console.log(myA[0]);
+        return myA[0];
     }
     drawChartChart(){
         var myAValues = this.getArrayValues( );
