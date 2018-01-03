@@ -225,10 +225,11 @@ class App {
             var schedule = getScheduleFromExcel(dowToday);
             var pA = schedule[0];
             var vA = schedule[1];
-            var orderArray = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th'];
+            var orderArray = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'];
             var regExp = /(^En)\w+|(^Ek)\w+|(^Gr)\w+.*\d+/gim;
             var parsedArray = [];
             var parsedValue;
+            var importantArrayVals = [];
             //console.log(pA[0][0]);
             var i = 0;
             for (var key in pA) {
@@ -240,6 +241,7 @@ class App {
                             if (parsedValue[0].substring(0, 1) == "E") {
                                 parsedValue = "Encore";
                             }
+                            importantArrayVals.push(i);
                         } else {}
                         parsedArray.push("");
                         parsedArray[i] = parsedValue || 'NoMatchingRegex';
@@ -253,7 +255,19 @@ class App {
                 i++;
             }
             console.log(parsedArray);
-            res.render('../public/schedule', { orderArray: orderArray, productArray: pA, valueArray: vA, sdow: dowToday, dow: dow, parsedArray: parsedArray });
+            console.log(importantArrayVals);
+            var importantObject = {};
+            for (i in importantArrayVals) {
+                var ii = importantArrayVals[i];
+                console.log(ii);
+                console.log("pA[i]:", pA[ii]);
+                console.log("parsedArray[i]:", parsedArray[ii]);
+                importantObject[parsedArray[ii]] = {};
+                importantObject[parsedArray[ii]]['description'] = pA[ii][0];
+                importantObject[parsedArray[ii]]['qty'] = vA[ii][0];
+            }
+            console.log(importantObject);
+            res.render('../public/schedule', { orderArray: orderArray, productArray: pA, valueArray: vA, sdow: dowToday, dow: dow, parsedArray: parsedArray, summary: importantObject });
         });
         app.get('/product', function (req, res, next) {
             console.log(req.query.productSelection);

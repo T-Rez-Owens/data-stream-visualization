@@ -15,8 +15,12 @@
     </head>
 
     <body>
-        <h1>Schedule for {{sdow}}</h1>
+        
         <table>
+            <tbody>
+            <tr colspan="4">
+            <h1>Schedule for {{sdow}}</h1>
+            </tr>
             <tr>
                 <th>Order</th>
                 <th>Chair type</th>
@@ -38,8 +42,26 @@
                 <td>No Sensors found</td>
             </tr>
             {% endfor %}
+            </tbody>
         </table>
-        <a class="button" href="/schedule?dow={% if dow == 1 %}5{% else %}{{dow -1}}{% endif %}">Previous Day</button>
-        <a class="button" href="/schedule?dow={% if (dow == 6) or (dow == 5) %}1{% else %}{{dow +1}}{% endif %}">Next Day</button>
+        <a class="button" href="/schedule?dow={% if dow == 1 %}5{% else %}{{dow -1}}{% endif %}">Previous Day</a>
+        <a class="button" href="/schedule?dow={% if (dow == 6) or (dow == 5) %}1{% else %}{{dow +1}}{% endif %}">Next Day</a>
+        <table name="summary">
+        <tbody>
+        <tr>
+            <th colspan="2">Summary:</th>
+        </tr>
+        <tr>
+            <th>Parsed Name</th>
+            <th>Qty</th>
+        </tr>
+        {% for key, value in summary %}
+        <tr>
+            <td>{{key}}:</td>
+            <td>{{value.qty}}</td>
+        </tr>    
+        {% endfor %}
+        </tbody>
+        </table>
 	</body>
 </html>
