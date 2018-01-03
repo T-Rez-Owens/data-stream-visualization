@@ -42,7 +42,7 @@ gulp.task('optimizeImages',['deleteDocsFolder'],function() {
 });
 
 gulp.task('usemin',['deleteDocsFolder','deletePublicFolder', 'css','scripts'],function(){
-    return gulp.src(["./app/assets/server/views/home.html","./app/assets/server/views/sensor.html","./app/assets/server/views/viewData.html","./app/assets/server/views/schedule.html","./app/assets/server/views/partNumberGen.html","./app/assets/server/views/product.html"])
+    return gulp.src(["./app/assets/server/views/home.html","./app/assets/server/views/sensor.html","./app/assets/server/views/viewData.html","./app/assets/server/views/schedule.html","./app/assets/server/views/partNumberGen.html","./app/assets/server/views/product.html","./app/assets/server/views/inProgress.html"])
     .pipe(usemin({
         css: [function(){return rev();}],
         js: [function(){return rev();}, function(){return uglify();}]

@@ -1,4 +1,6 @@
-'use strict'
+/* jshint node: true */
+/*jshint esversion: 6 */
+'use strict';
 var expressApp = require('express'),
 app = expressApp(),
 enginesApp = require('consolidate'),
@@ -49,104 +51,11 @@ class App {
             max = Math.floor(max);
             return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
         }
-        app.use(errorHandler);
-
-        app.get('/helloWorld', function(req,res, next){
-            res.send("Hello World");
-            res.send(next);
-        });
-        app.get('/', function(req,res,next){
-            res.render('../public/home');
-        });
-        app.get('/view_dataPoint', function(req,res,next){
-            res.render('../public/viewData');
-        });
-        app.post('/view_dataPoint', function(req, res, next) {
-            var sensor = req.body.sensor.toString();
-            var query1 = new Date(req.body.query1);
-            console.log(query1);
-            var query2 = new Date(req.body.query2);
-            console.log(query2);
-            
-            const Sensor = {
-                sensor:sensor,
-            };
-            Sensor.limit = parseInt(req.body.limit,10) || 20;
-            //var time = momentApp.utc(new Date()).format("YYYY-MM-DD HH:mm Z");
-            //console.log(time);
-
-            var iSensor = {
-                sensor:sensor
-            };
-            var sensorArray = [];
-            serverApp.mongoDataGrabSensorArray(Sensor, callback2);
-            function callback2(cursor){
-                var count = 0;
-                cursor.forEach(sensor => {
-                    count=count+1;
-                    sensor.time= momentApp(new Date(sensor.time), "YYYY-MM-DD HH:mm Z");
-                    sensorArray.push(sensor);
-                    console.log(sensor);
-                },function(err){
-                    console.log("Retrieved: ", count,Sensor.sensor+" sensors");
-                    
-                    var docs = sensorArray;
-                    res.render('../public/sensor.html', { 'points' : docs});
-                });
+        function getScheduleFromExcel(dowToday){
+            var arrayArray = [[],[]];//[]
+            if(dowToday.length<3){
+                throw `Error: this should be something like: MONDAY instead of ${dowToday}`;
             }
-            
-        }); 
-        app.get('/add_dataPoint', function(req,res,next){
-            res.render('add_dataPoint', {'randomInt':getRandomInt(0,5500)});
-        });
-        app.post('/add_dataPoint', function(req, res, next) {
-            var sensor = req.body.sensor.toString();
-            var value = req.body.value;
-            const Sensor = {
-                sensor:sensor,
-            };
-            Sensor.limit = parseInt(req.body.limit,10) || 20;
-            var time = momentApp.utc(new Date()).format("YYYY-MM-DD HH:mm Z");
-            console.log(time);
-
-            var iSensor = {
-                sensor:sensor,
-                value:value,
-                time:time
-            }
-            serverApp.insertSensor(iSensor,callback);
-            function callback(){
-                serverApp.mongoDataGrabSensorArray(Sensor, callback2);
-            }
-            var sensorArray = [];
-            function callback2(cursor){
-                var count = 0;
-                cursor.forEach(sensor => {
-                    count=count+1;
-                    sensor.time= momentApp(new Date(sensor.time), "YYYY-MM-DD HH:mm Z");
-                    sensorArray.push(sensor);
-                    console.log(sensor);
-                },function(err){
-                    console.log("Retrieved: ", count,Sensor.sensor+" sensors");
-                    
-                    var docs = sensorArray;
-                    res.render('../public/sensor.html', { 'points' : docs, 'value': value});
-                });
-            }
-            
-        }); 
-       
-        app.get('/public/scripts/DrawLineGraph.js',function(req,res,next){
-            console.log("sent JS file.");
-            res.sendFile(pathApp.resolve(__dirname + "/public/scripts/DrawLineGraph.js"));
-            
-        });
-        app.get('/public/scripts/example.js',function(req,res,next){
-            console.log("sent JS file.");
-            res.sendFile(pathApp.resolve(__dirname + "/public/scripts/example.js"));
-            
-        });
-        app.get('/schedule',function(req, res, next){
             if(typeof require !== 'undefined') XLSX = require('xlsx');
             var fileString = "";
             if(process.env.SYSTEM == 'local'){
@@ -157,22 +66,8 @@ class App {
             }
             
             var workbook = XLSX.readFile(fileString);
-            var date = momentApp(new Date());
-            //console.log(parseInt(req.query.dow));
-            var dow = parseInt(req.query.dow) || date.day();//since dow is not going to be 0 for sunday this works. if I wanted to use sunday I'd have to re-think this logic.
-            //console.log(dow);
-            var dowA = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
-            switch(dow){
-                case 0://SUNDAY
-                    //spend this time well!
-                break;
-                case 6://SATURDAY
-                    console.log("enjoy your weekend!");
-                break;
-                default:
-                    var dowToday = dowA[dow];
-                    console.log(dowToday);
-            }
+            
+            
             
             /* DO SOMETHING WITH workbook HERE */
             var first_sheet_name = workbook.SheetNames[0];
@@ -208,23 +103,252 @@ class App {
                 }
                 return result;
                 
-             };
-            var vA = sheet2arr(ws,'G3:G12');
-            var pA = sheet2arr(ws,'F3:F12');
+            };
+            var pA = 0;
+            var vA = 1;
             
-            //console.log(sA);
+            arrayArray[vA] = sheet2arr(ws,'G3:G12');
+            arrayArray[pA] = sheet2arr(ws,'F3:F12');
+            
+            return arrayArray;
+        }
+        app.use(errorHandler);
+
+        app.get('/helloWorld', function(req,res, next){
+            res.send("Hello World");
+            res.send(next);
+        });
+        app.get('/', function(req,res,next){
+            
+            serverApp.aggregateProductNames((productArray)=>{
+                //console.log(productArray);
+                
+                res.render('../public/home',{productArray:productArray});
+                
+            });
+            
+        });
+        app.get('/view_dataPoint', function(req,res,next){
+            res.render('../public/viewData');
+        });
+        app.post('/view_dataPoint', function(req, res, next) {
+            var sensor = req.body.sensor.toString();
+            var query1 = new Date(req.body.query1);
+            //console.log(query1);
+            var query2 = new Date(req.body.query2);
+            //console.log(query2);
+            
+            const Sensor = {
+                sensor:sensor,
+            };
+            Sensor.limit = parseInt(req.body.limit,10) || 20;
+            //var time = momentApp.utc(new Date()).format("YYYY-MM-DD HH:mm Z");
+            //console.log(time);
+
+            var iSensor = {
+                sensor:sensor
+            };
+            var sensorArray = [];
+            serverApp.mongoDataGrabSensorArray(Sensor, callback2);
+            function callback2(cursor){
+                var count = 0;
+                cursor.forEach(sensor => {
+                    count=count+1;
+                    sensor.time= momentApp(new Date(sensor.time), "YYYY-MM-DD HH:mm Z");
+                    sensorArray.push(sensor);
+                    //console.log(sensor);
+                },function(err){
+                    console.log("Retrieved: ", count,Sensor.sensor+" sensors");
+                    
+                    var docs = sensorArray;
+                    res.render('../public/sensor.html', { 'points' : docs});
+                });
+            }
+            
+        }); 
+        app.get('/add_dataPoint', function(req,res,next){
+            res.render('add_dataPoint', {'randomInt':getRandomInt(0,5500)});
+        });
+        app.post('/add_dataPoint', function(req, res, next) {
+            var sensor = req.body.sensor.toString();
+            var value = req.body.value;
+            const Sensor = {
+                sensor:sensor,
+            };
+            Sensor.limit = parseInt(req.body.limit,10) || 20;
+            var time = momentApp.utc(new Date()).format("YYYY-MM-DD HH:mm Z");
+            //console.log(time);
+
+            var iSensor = {
+                sensor:sensor,
+                value:value,
+                time:time
+            };
+            serverApp.insertSensor(iSensor,callback);
+            function callback(){
+                serverApp.mongoDataGrabSensorArray(Sensor, callback2);
+            }
+            var sensorArray = [];
+            function callback2(cursor){
+                var count = 0;
+                cursor.forEach(sensor => {
+                    count=count+1;
+                    sensor.time= momentApp(new Date(sensor.time), "YYYY-MM-DD HH:mm Z");
+                    sensorArray.push(sensor);
+                    //console.log(sensor);
+                },function(err){
+                    console.log("Retrieved: ", count,Sensor.sensor+" sensors");
+                    
+                    var docs = sensorArray;
+                    res.render('../public/sensor.html', { 'points' : docs, 'value': value});
+                });
+            }
+            
+        }); 
+       
+        app.get('/public/scripts/DrawLineGraph.js',function(req,res,next){
+            console.log("sent JS file.");
+            res.sendFile(pathApp.resolve(__dirname + "/public/scripts/DrawLineGraph.js"));
+            
+        });
+        app.get('/public/scripts/example.js',function(req,res,next){
+            console.log("sent JS file.");
+            res.sendFile(pathApp.resolve(__dirname + "/public/scripts/example.js"));
+            
+        });
+        app.get('/schedule',function(req, res, next){
+            var date = momentApp(new Date());
+            var dow = parseInt(req.query.dow) || 
+                        date.day();//since dow is never going to be 0 (sunday) this works,
+                        // but if I wanted to use sunday I'd have to re-think this logic.
+            //console.log(dow);
+            var dowA = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+            switch(dow){
+                case 0://SUNDAY
+                    //spend this time well!
+                break;
+                case 6://SATURDAY
+                    console.log("enjoy your weekend!");
+                break;
+                default:
+                    var dowToday = dowA[dow];
+                    //console.log(dowToday);
+            }
+            var schedule = getScheduleFromExcel(dowToday);
+            var pA = schedule[0];
+            var vA = schedule[1];
             var orderArray = ['1st','2nd','3rd','4th','5th','6th','7th','8th'];
-            res.render('../public/schedule',{orderArray:orderArray,productArray:pA, valueArray:vA, sdow:dowToday,dow:dow});
+            var regExp = /(^En)\w+|(^Ek)\w+|(^Gr)\w+.*\d+/gim;
+            var parsedArray=[];
+            var parsedValue;
+            //console.log(pA[0][0]);
+            var i=0;
+            for(var key in pA){
+                try
+                {
+                    if(pA[key][0]!=null){
+                        parsedValue = pA[key][0].match(regExp);
+                        console.log(pA[key],":",parsedValue);
+                        if(parsedValue!=null){
+                            if(parsedValue[0].substring(0,1)=="E"){
+                                parsedValue="Encore";
+                            }
+                            
+                        }
+                        else{
+                        
+                        }
+                        parsedArray.push("");
+                        parsedArray[i]=parsedValue||'NoMatchingRegex';
+                    }
+                    else{
+                        parsedArray.push('N/A');
+                    }
+                    
+                }
+                catch(e){
+                    //console.log(e);
+                    parsedArray.push('BadLine');
+                }
+                i++;
+            }
+            console.log(parsedArray);
+            res.render('../public/schedule',
+            {orderArray:orderArray,productArray:pA, valueArray:vA, sdow:dowToday,dow:dow,parsedArray:parsedArray});
             
         });
         app.get('/product',function(req,res,next){
+            console.log(req.query.productSelection);
+            var productName = req.query.productSelection || "hourglass";
+            productName = productName.toString();
             var product = {
-                name:"hourglass",
-                partsPerHour:10.5,
-                time: new Date()
-            }
-            console.log(product);
-           res.render("../public/product",{product:product});
+                name:productName,
+                partsPerHour:getRandomInt(0,80)+(1/getRandomInt(-80,80)),
+                time: new Date(),
+                limit:11
+            };
+            //serverApp.insertProduct(product,function(result){
+                //console.log(result);
+                serverApp.mongoDataGrabProductArray(product,function(result2){
+                    var productArray=[];
+                    var count=0;
+                    result2.forEach(entry => {
+                        count++;
+                        productArray.push(entry);
+                        //console.log(productArray);
+                    },function(err){
+                        console.log("Retrieved: ", count, product.name +" entries");
+                        serverApp.aggregateProductPartsPerHour(productName, function(pphProduct){
+                            
+                            function round(value, decimals) {
+                                return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+                              }
+                            try {
+                                //console.log(pphProduct[0].PPH);
+                                res.render("../public/product",
+                                {product:product,productArray:productArray,pphProduct:round(pphProduct[0].PPH, 1)});
+                            }                            
+                            catch (e){
+                                res.render("error_template",{error:e});
+                            }
+                                
+                            
+                            
+                        });
+                        
+                    });
+                    
+                    
+                });
+                
+            //});
+            
+        });
+        app.get('/inProgress',function(req,res,next){
+            
+            var product = {
+            //     limit:31
+            };
+            serverApp.mongoDataGrabInProgressArray(product,function(result2){
+                var productArray=[];
+                var count=0;
+                result2.forEach(entry => {
+                    count++;
+                    productArray.push(entry);
+                    
+                },function(err){
+                    try {
+                        //console.log(pphProduct[0].PPH);
+                        res.render("../public/inProgress",
+                        {productArray:productArray});
+                        //console.log(productArray);
+                    }                            
+                    catch (e){
+                        res.render("error_template",{error:e});
+                    }
+                });
+                
+            });
         });
         app.get('/partNumberGen',function(req, res, next){
             
@@ -258,7 +382,7 @@ class App {
                     }
                 },
                 
-            }
+            };
             var part = {
                 productLine:{"Comfort":{"leg":'109718',"front":'109716 or 109719',"stack-bar":'111231','seat-support':'111165'}},
                 backShape:{"HG":'1098xx'},
@@ -292,7 +416,7 @@ class App {
                 backShape:{"HG":40,"SQ":40,"RN":40,"OV":40,"CR":50,"GEN-CR":56},
                 backOption:"Flex",
                 options:["Arm","Ret-GA"]
-            }
+            };
             res.render('../public/partNumberGen',{RLO:RLO,part:part});
         });
         callback(app);

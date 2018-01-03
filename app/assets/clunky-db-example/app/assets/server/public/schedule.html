@@ -21,7 +21,7 @@
                 <th>Order</th>
                 <th>Chair type</th>
                 <th>Quantity</th>
-                <th>New Order</th>
+                <th>Parsed value</th>
             </tr>
 
             {% for cell in productArray %}
@@ -30,7 +30,7 @@
                 <td id="{{ loop.index }}.{{ loop.index -1 }}">{{ orderArray[loop.index-1] }}</td>
                 <td id="{{ loop.index }}.{{ loop.index }}">{{ productArray[loop.index-1] }}</td>
                 <td id="{{ loop.index }}.{{ loop.index +1 }}">{{ valueArray[loop.index-1] }}</td>
-                <td id="{{ loop.index }}.{{ loop.index +2 }}"><input id='{{ orderArray[loop.index-1] }}' name="{{loop.index}}"></td>
+                <td id="{{ loop.index }}.{{ loop.index +1 }}"><input value='{{ parsedArray[loop.index-1] }}'></td>
             </tr>
 
             {% else %}

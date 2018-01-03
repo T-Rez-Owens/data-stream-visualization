@@ -27560,6 +27560,7 @@ var DrawMyGraph = function () {
         this.events();
         this.sensorArray = $(".sensor").toArray();
         //console.log(this.sensorArray);
+        this.drawChartChart();
     }
 
     _createClass(DrawMyGraph, [{
@@ -27571,7 +27572,7 @@ var DrawMyGraph = function () {
         }
     }, {
         key: 'getArrayValues',
-        value: function getArrayValues() {
+        value: function getArrayValues(mySeries) {
             function myArray(sensors) {
                 var a = [];
                 for (var i = 0; i < sensors.length; i++) {
@@ -27579,10 +27580,20 @@ var DrawMyGraph = function () {
                 }
                 return a;
             }
-            console.log($(".sensor--value").toArray());
-            var myA = myArray($(".sensor--value").toArray().reverse());
-            console.log(myA);
-            return myA;
+            var myAO = [];
+            for (var i in mySeries) {
+                var myA = myArray($('.sensor--value.' + mySeries[i]).toArray().reverse());
+                //console.log("jquery: ", '.sensor--value.'+mySeries[i]);
+                //console.log("mySeries:", mySeries[i]);
+                //console.log("i:", i);
+                myAO.push(myA);
+                //console.log("My AO:",myAO);
+            }
+
+            //console.log($( `.sensor--value ${series}` ).toArray());
+
+
+            return myAO;
         }
     }, {
         key: 'getArrayTimes',
@@ -27594,9 +27605,9 @@ var DrawMyGraph = function () {
                 }
                 return a;
             }
-            console.log($(".sensor--time").toArray());
+            //console.log($( ".sensor--time" ).toArray());   
             var myA = myArray($(".sensor--time").toArray().reverse());
-            console.log(myA);
+            //console.log(myA);
             return myA;
         }
     }, {
@@ -27610,40 +27621,78 @@ var DrawMyGraph = function () {
             }
             //console.log($( ".sensor--name" ).toArray());
             var myA = myArray($(".sensor--name").toArray());
-            console.log(myA[0]);
+            //console.log(myA[0]);
             return myA[0];
+        }
+    }, {
+        key: 'getSeriesArray',
+        value: function getSeriesArray() {
+            function myArray(jqueryIn) {
+                var a = [];
+                for (var i = 1; i < jqueryIn.length - 1; i++) {
+                    a.push(jqueryIn[i].textContent);
+                }
+                //console.log(a);
+                return a;
+            }
+            //console.log($("th").toArray());
+            var myA = myArray($("th").toArray());
+            return myA;
         }
     }, {
         key: 'drawChartChart',
         value: function drawChartChart() {
-            var myAValues = this.getArrayValues();
+            var mySeries = this.getSeriesArray();
+            var myAValues = this.getArrayValues(mySeries);
             var myATimes = this.getArrayTimes();
             var myAName = this.getChartName();
             var timeFormat = 'MM/DD/YYYY HH:mm';
-            //console.log("chart:", myAValues);
+            //console.log("My Series", mySeries);
+            //console.log("Values:", myAValues);
+            //console.log("Times:", myATimes);
             var ctx = document.getElementById("myChart").getContext("2d");
+            var dataSetObjectArray = [];
+
+            var borderColors = [];
+            var red = 0;
+            var green = 0;
+            var blue = 0;
+            var alpha = 0.0;
+            function getRandomInt(min, max) {
+                min = Math.ceil(min);
+                max = Math.floor(max);
+                return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+            }
+            for (var i in mySeries) {
+                red = getRandomInt(100, 255);
+                green = getRandomInt(0, 100);
+                blue = getRandomInt(0, 255);
+                alpha = 1;
+                borderColors.push('rgba(' + red + ',' + green + ',' + blue + ',' + alpha + ')');
+                dataSetObjectArray.push({
+                    label: mySeries[i],
+                    data: myAValues[i],
+                    pointRadius: 5,
+                    pointHitRadius: 25,
+                    fill: false,
+                    lineTension: 0,
+                    spanGaps: false,
+                    backgroundColor: ['rgba(255, 99, 132, 0.2)'],
+                    borderColor: [borderColors[i]],
+                    borderWidth: 1
+                });
+            }
             var myChart = new _chart2.default(ctx, {
                 type: 'line',
                 data: {
                     labels: myATimes,
-                    datasets: [{
-                        label: myAName,
-                        data: myAValues,
-                        pointRadius: 5,
-                        pointHitRadius: 25,
-                        fill: false,
-                        lineTension: 0,
-                        spanGaps: false,
-                        backgroundColor: ['rgba(255, 99, 132, 0.2)'],
-                        borderColor: ['rgba(255,99,132,1)'],
-                        borderWidth: 1
-                    }]
+                    datasets: dataSetObjectArray
                 },
                 options: {
                     responsive: true,
                     title: {
                         display: true,
-                        text: "Chart.js Time Point Data"
+                        text: "in progress products shown using Chart.js"
                     },
                     scales: {
                         xAxes: [{

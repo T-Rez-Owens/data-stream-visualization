@@ -1,3 +1,5 @@
+/* jshint node: true */
+/*jshint esversion: 6 */
 'use strict';
 
 var expressApp = require('express'),
@@ -48,100 +50,11 @@ class App {
             max = Math.floor(max);
             return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
         }
-        app.use(errorHandler);
-
-        app.get('/helloWorld', function (req, res, next) {
-            res.send("Hello World");
-            res.send(next);
-        });
-        app.get('/', function (req, res, next) {
-            res.render('../public/home');
-        });
-        app.get('/view_dataPoint', function (req, res, next) {
-            res.render('../public/viewData');
-        });
-        app.post('/view_dataPoint', function (req, res, next) {
-            var sensor = req.body.sensor.toString();
-            var query1 = new Date(req.body.query1);
-            console.log(query1);
-            var query2 = new Date(req.body.query2);
-            console.log(query2);
-
-            const Sensor = {
-                sensor: sensor
-            };
-            Sensor.limit = parseInt(req.body.limit, 10) || 20;
-            //var time = momentApp.utc(new Date()).format("YYYY-MM-DD HH:mm Z");
-            //console.log(time);
-
-            var iSensor = {
-                sensor: sensor
-            };
-            var sensorArray = [];
-            serverApp.mongoDataGrabSensorArray(Sensor, callback2);
-            function callback2(cursor) {
-                var count = 0;
-                cursor.forEach(sensor => {
-                    count = count + 1;
-                    sensor.time = momentApp(new Date(sensor.time), "YYYY-MM-DD HH:mm Z");
-                    sensorArray.push(sensor);
-                    console.log(sensor);
-                }, function (err) {
-                    console.log("Retrieved: ", count, Sensor.sensor + " sensors");
-
-                    var docs = sensorArray;
-                    res.render('../public/sensor.html', { 'points': docs });
-                });
+        function getScheduleFromExcel(dowToday) {
+            var arrayArray = [[], []]; //[]
+            if (dowToday.length < 3) {
+                throw `Error: this should be something like: MONDAY instead of ${dowToday}`;
             }
-        });
-        app.get('/add_dataPoint', function (req, res, next) {
-            res.render('add_dataPoint', { 'randomInt': getRandomInt(0, 5500) });
-        });
-        app.post('/add_dataPoint', function (req, res, next) {
-            var sensor = req.body.sensor.toString();
-            var value = req.body.value;
-            const Sensor = {
-                sensor: sensor
-            };
-            Sensor.limit = parseInt(req.body.limit, 10) || 20;
-            var time = momentApp.utc(new Date()).format("YYYY-MM-DD HH:mm Z");
-            console.log(time);
-
-            var iSensor = {
-                sensor: sensor,
-                value: value,
-                time: time
-            };
-            serverApp.insertSensor(iSensor, callback);
-            function callback() {
-                serverApp.mongoDataGrabSensorArray(Sensor, callback2);
-            }
-            var sensorArray = [];
-            function callback2(cursor) {
-                var count = 0;
-                cursor.forEach(sensor => {
-                    count = count + 1;
-                    sensor.time = momentApp(new Date(sensor.time), "YYYY-MM-DD HH:mm Z");
-                    sensorArray.push(sensor);
-                    console.log(sensor);
-                }, function (err) {
-                    console.log("Retrieved: ", count, Sensor.sensor + " sensors");
-
-                    var docs = sensorArray;
-                    res.render('../public/sensor.html', { 'points': docs, 'value': value });
-                });
-            }
-        });
-
-        app.get('/public/scripts/DrawLineGraph.js', function (req, res, next) {
-            console.log("sent JS file.");
-            res.sendFile(pathApp.resolve(__dirname + "/public/scripts/DrawLineGraph.js"));
-        });
-        app.get('/public/scripts/example.js', function (req, res, next) {
-            console.log("sent JS file.");
-            res.sendFile(pathApp.resolve(__dirname + "/public/scripts/example.js"));
-        });
-        app.get('/schedule', function (req, res, next) {
             if (typeof require !== 'undefined') XLSX = require('xlsx');
             var fileString = "";
             if (process.env.SYSTEM == 'local') {
@@ -151,24 +64,6 @@ class App {
             }
 
             var workbook = XLSX.readFile(fileString);
-            var date = momentApp(new Date());
-            //console.log(parseInt(req.query.dow));
-            var dow = parseInt(req.query.dow) || date.day(); //since dow is not going to be 0 for sunday this works. if I wanted to use sunday I'd have to re-think this logic.
-            //console.log(dow);
-            var dowA = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-            switch (dow) {
-                case 0:
-                    //SUNDAY
-                    //spend this time well!
-                    break;
-                case 6:
-                    //SATURDAY
-                    console.log("enjoy your weekend!");
-                    break;
-                default:
-                    var dowToday = dowA[dow];
-                    console.log(dowToday);
-            }
 
             /* DO SOMETHING WITH workbook HERE */
             var first_sheet_name = workbook.SheetNames[0];
@@ -202,21 +97,223 @@ class App {
                 }
                 return result;
             };
-            var vA = sheet2arr(ws, 'G3:G12');
-            var pA = sheet2arr(ws, 'F3:F12');
+            var pA = 0;
+            var vA = 1;
 
-            //console.log(sA);
+            arrayArray[vA] = sheet2arr(ws, 'G3:G12');
+            arrayArray[pA] = sheet2arr(ws, 'F3:F12');
+
+            return arrayArray;
+        }
+        app.use(errorHandler);
+
+        app.get('/helloWorld', function (req, res, next) {
+            res.send("Hello World");
+            res.send(next);
+        });
+        app.get('/', function (req, res, next) {
+
+            serverApp.aggregateProductNames(productArray => {
+                //console.log(productArray);
+
+                res.render('../public/home', { productArray: productArray });
+            });
+        });
+        app.get('/view_dataPoint', function (req, res, next) {
+            res.render('../public/viewData');
+        });
+        app.post('/view_dataPoint', function (req, res, next) {
+            var sensor = req.body.sensor.toString();
+            var query1 = new Date(req.body.query1);
+            //console.log(query1);
+            var query2 = new Date(req.body.query2);
+            //console.log(query2);
+
+            const Sensor = {
+                sensor: sensor
+            };
+            Sensor.limit = parseInt(req.body.limit, 10) || 20;
+            //var time = momentApp.utc(new Date()).format("YYYY-MM-DD HH:mm Z");
+            //console.log(time);
+
+            var iSensor = {
+                sensor: sensor
+            };
+            var sensorArray = [];
+            serverApp.mongoDataGrabSensorArray(Sensor, callback2);
+            function callback2(cursor) {
+                var count = 0;
+                cursor.forEach(sensor => {
+                    count = count + 1;
+                    sensor.time = momentApp(new Date(sensor.time), "YYYY-MM-DD HH:mm Z");
+                    sensorArray.push(sensor);
+                    //console.log(sensor);
+                }, function (err) {
+                    console.log("Retrieved: ", count, Sensor.sensor + " sensors");
+
+                    var docs = sensorArray;
+                    res.render('../public/sensor.html', { 'points': docs });
+                });
+            }
+        });
+        app.get('/add_dataPoint', function (req, res, next) {
+            res.render('add_dataPoint', { 'randomInt': getRandomInt(0, 5500) });
+        });
+        app.post('/add_dataPoint', function (req, res, next) {
+            var sensor = req.body.sensor.toString();
+            var value = req.body.value;
+            const Sensor = {
+                sensor: sensor
+            };
+            Sensor.limit = parseInt(req.body.limit, 10) || 20;
+            var time = momentApp.utc(new Date()).format("YYYY-MM-DD HH:mm Z");
+            //console.log(time);
+
+            var iSensor = {
+                sensor: sensor,
+                value: value,
+                time: time
+            };
+            serverApp.insertSensor(iSensor, callback);
+            function callback() {
+                serverApp.mongoDataGrabSensorArray(Sensor, callback2);
+            }
+            var sensorArray = [];
+            function callback2(cursor) {
+                var count = 0;
+                cursor.forEach(sensor => {
+                    count = count + 1;
+                    sensor.time = momentApp(new Date(sensor.time), "YYYY-MM-DD HH:mm Z");
+                    sensorArray.push(sensor);
+                    //console.log(sensor);
+                }, function (err) {
+                    console.log("Retrieved: ", count, Sensor.sensor + " sensors");
+
+                    var docs = sensorArray;
+                    res.render('../public/sensor.html', { 'points': docs, 'value': value });
+                });
+            }
+        });
+
+        app.get('/public/scripts/DrawLineGraph.js', function (req, res, next) {
+            console.log("sent JS file.");
+            res.sendFile(pathApp.resolve(__dirname + "/public/scripts/DrawLineGraph.js"));
+        });
+        app.get('/public/scripts/example.js', function (req, res, next) {
+            console.log("sent JS file.");
+            res.sendFile(pathApp.resolve(__dirname + "/public/scripts/example.js"));
+        });
+        app.get('/schedule', function (req, res, next) {
+            var date = momentApp(new Date());
+            var dow = parseInt(req.query.dow) || date.day(); //since dow is never going to be 0 (sunday) this works,
+            // but if I wanted to use sunday I'd have to re-think this logic.
+            //console.log(dow);
+            var dowA = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+            switch (dow) {
+                case 0:
+                    //SUNDAY
+                    //spend this time well!
+                    break;
+                case 6:
+                    //SATURDAY
+                    console.log("enjoy your weekend!");
+                    break;
+                default:
+                    var dowToday = dowA[dow];
+                //console.log(dowToday);
+            }
+            var schedule = getScheduleFromExcel(dowToday);
+            var pA = schedule[0];
+            var vA = schedule[1];
             var orderArray = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th'];
-            res.render('../public/schedule', { orderArray: orderArray, productArray: pA, valueArray: vA, sdow: dowToday, dow: dow });
+            var regExp = /(^En)\w+|(^Ek)\w+|(^Gr)\w+.*\d+/gim;
+            var parsedArray = [];
+            var parsedValue;
+            //console.log(pA[0][0]);
+            var i = 0;
+            for (var key in pA) {
+                try {
+                    if (pA[key][0] != null) {
+                        parsedValue = pA[key][0].match(regExp);
+                        console.log(pA[key], ":", parsedValue);
+                        if (parsedValue != null) {
+                            if (parsedValue[0].substring(0, 1) == "E") {
+                                parsedValue = "Encore";
+                            }
+                        } else {}
+                        parsedArray.push("");
+                        parsedArray[i] = parsedValue || 'NoMatchingRegex';
+                    } else {
+                        parsedArray.push('N/A');
+                    }
+                } catch (e) {
+                    //console.log(e);
+                    parsedArray.push('BadLine');
+                }
+                i++;
+            }
+            console.log(parsedArray);
+            res.render('../public/schedule', { orderArray: orderArray, productArray: pA, valueArray: vA, sdow: dowToday, dow: dow, parsedArray: parsedArray });
         });
         app.get('/product', function (req, res, next) {
+            console.log(req.query.productSelection);
+            var productName = req.query.productSelection || "hourglass";
+            productName = productName.toString();
             var product = {
-                name: "hourglass",
-                partsPerHour: 10.5,
-                time: new Date()
+                name: productName,
+                partsPerHour: getRandomInt(0, 80) + 1 / getRandomInt(-80, 80),
+                time: new Date(),
+                limit: 11
             };
-            console.log(product);
-            res.render("../public/product", { product: product });
+            //serverApp.insertProduct(product,function(result){
+            //console.log(result);
+            serverApp.mongoDataGrabProductArray(product, function (result2) {
+                var productArray = [];
+                var count = 0;
+                result2.forEach(entry => {
+                    count++;
+                    productArray.push(entry);
+                    //console.log(productArray);
+                }, function (err) {
+                    console.log("Retrieved: ", count, product.name + " entries");
+                    serverApp.aggregateProductPartsPerHour(productName, function (pphProduct) {
+
+                        function round(value, decimals) {
+                            return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+                        }
+                        try {
+                            //console.log(pphProduct[0].PPH);
+                            res.render("../public/product", { product: product, productArray: productArray, pphProduct: round(pphProduct[0].PPH, 1) });
+                        } catch (e) {
+                            res.render("error_template", { error: e });
+                        }
+                    });
+                });
+            });
+
+            //});
+        });
+        app.get('/inProgress', function (req, res, next) {
+
+            var product = {
+                //     limit:31
+            };
+            serverApp.mongoDataGrabInProgressArray(product, function (result2) {
+                var productArray = [];
+                var count = 0;
+                result2.forEach(entry => {
+                    count++;
+                    productArray.push(entry);
+                }, function (err) {
+                    try {
+                        //console.log(pphProduct[0].PPH);
+                        res.render("../public/inProgress", { productArray: productArray });
+                        //console.log(productArray);
+                    } catch (e) {
+                        res.render("error_template", { error: e });
+                    }
+                });
+            });
         });
         app.get('/partNumberGen', function (req, res, next) {
 
@@ -324,6 +421,9 @@ const ServerConstructor = require('./Server');
 let serverStarter;
 serverStarter = new ServerConstructor();
 serverStarter.startListening();
+/* jshint node: true */
+/*jshint esversion: 6 */
+/*jshint laxcomma:true */
 'use strict';
 
 const MongoClient = require('mongodb').MongoClient;
@@ -411,6 +511,51 @@ class MongoDB {
             callback(cursor);
         });
     }
+    mongoDataGrabProductArray(product, callback) {
+        var dbPromise = this.connect();
+        return dbPromise.then(db => {
+            var query = {
+                "product": product.name
+            };
+            var options = {};
+            options.product = product;
+            options.limit = product.limit !== undefined ? product.limit : 10;
+            options.skip = 0;
+            var projection = { _id: false };
+            var cursor = db.collection('products').find(query);
+            cursor.project(projection);
+            db.collection('products').find(query).count(function (err, numOfProducts) {
+                console.log(`Returning ${options.limit} of ${numOfProducts}`);
+            });
+
+            cursor.limit(options.limit);
+            cursor.skip(options.skip);
+            cursor.sort([["_id", -1]]); //latest n docs without having to worry about time-stamp formatting.
+            callback(cursor);
+        });
+    }
+    mongoDataGrabInProgressArray(product, callback) {
+        var dbPromise = this.connect();
+        return dbPromise.then(db => {
+            var query = {};
+            //console.log(query);
+            var options = {};
+            options.product = product;
+            options.limit = product.limit !== undefined ? product.limit : 31;
+            options.skip = 0;
+            var projection = {};
+            var cursor = db.collection('inProgress').find(query);
+            cursor.project(projection);
+            db.collection('inProgress').find(query).count(function (err, numOfProducts) {
+                console.log(`Returning ${options.limit} of ${numOfProducts}`);
+            });
+
+            cursor.limit(options.limit);
+            cursor.skip(options.skip);
+            cursor.sort([["_id", -1]]); //latest n docs without having to worry about time-stamp formatting.
+            callback(cursor);
+        });
+    }
     queryDocument(options) {
         //console.log(options);
         var query = {
@@ -438,6 +583,149 @@ class MongoDB {
             });
         }
     }
+    insertProduct(product, callback) {
+
+        if (product.partsPerHour.isNan || product.name == null) {
+            console.log("bad product");
+        } else {
+            var dbPromise = this.connect();
+            return dbPromise.then(db => {
+                db.collection('products').insertOne({ "product": product.name, "partsPerHour": product.partsPerHour, "time": product.time }, (err, result) => {
+                    if (err) reject(err);
+                    if (result) {
+                        console.log(`finished inserting ${result.insertedCount}  ${product.name} product with value:${parseInt(product.partsPerHour, 10)}`);
+                        callback(result);
+                    } else {
+                        callback({});
+                    }
+                });
+            });
+        }
+    }
+
+    aggregateProductNames(callback) {
+        var dbPromise = this.connect();
+        var products = [];
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        return dbPromise.then(db => {
+
+            db.collection('products').aggregate([
+
+            /* now group by tags, counting each tag */
+            { "$group": {
+                    "_id": "$product",
+                    count: { $avg: "$partsPerHour" }
+                }
+            }, { "$project": {
+                    _id: 0,
+                    name: "$_id"
+                }
+            }, { $sort: {
+                    name: 1
+                }
+
+                /* change the name of _id to be tag */
+
+            }], (err, result) => {
+                if (err) throw err;
+                if (result) {
+                    //console.log(result);
+                    var sum = 0;
+                    result.forEach(product => {
+                        products.push(capitalizeFirstLetter(product.name));
+                    });
+                }
+                callback(products);
+            });
+        });
+    }
+    aggregateInProgressList(callback) {
+        var dbPromise = this.connect();
+        var products = [];
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        return dbPromise.then(db => {
+
+            db.collection('inProgress').findOne((err, doc) => {
+                var array = [];
+                for (var key in doc) {
+                    array.push(key);
+                    console.log(key);
+                }
+
+                callback(array);
+            });
+
+            /*
+              db.collection('inProgress').aggregate([
+                
+                {"$group": 
+                    {
+                        "_id":"$product",
+                        count:{$avg:"$partsPerHour"}
+                    }
+                },
+                {"$project":
+                {
+                    _id:0,
+                    name:"$_id"
+                }
+                },
+                {$sort:{
+                    name:1
+                }}
+                
+            ],(err,result)=>{
+                if(err) throw (err);
+                if(result) {
+                    //console.log(result);
+                    var sum =0;
+                    result.forEach(product => {
+                        products.push(capitalizeFirstLetter(product.name));
+                    });
+                }
+                callback(products);
+            });*/
+        });
+    }
+
+    aggregateProductPartsPerHour(productName, callback) {
+        var dbPromise = this.connect();
+        var products = [];
+        return dbPromise.then(db => {
+
+            db.collection('products').aggregate([{ "$match": {
+                    product: productName
+                } },
+            /* now group by tags, counting each tag */
+            { "$group": {
+                    "_id": "$product",
+                    count: { $avg: "$partsPerHour" }
+                }
+            }, { "$project": {
+                    _id: 0,
+                    name: "$_id",
+                    PPH: '$count'
+                }
+
+                /* change the name of _id to be tag */
+
+            }], (err, result) => {
+                if (err) throw err;
+                if (result) {
+                    //console.log(result);
+                    var sum = 0;
+                    result.forEach(product => {
+                        products.push(product);
+                    });
+                }
+                callback(products);
+            });
+        });
+    }
     mongoClose() {
         var dbPromise = this.connect();
         return dbPromise.then(db => {
@@ -447,13 +735,13 @@ class MongoDB {
 }
 
 module.exports = MongoDB;
-"use strict";
-
+//unused 
+/*
 var jQuery = require('jquery');
 var $ = jQuery;
 //window.jQuery = require('jquery');
 
-class DrawLineGraph {
+class DrawLineGraph{
     constructor(inTakt, inXWidth, inYHeight, inDataLength) {
         this.c = $(".line-graph-canvas");
         this.drawButton = $(".draw-canvas-button");
@@ -462,7 +750,8 @@ class DrawLineGraph {
         this.inXWidth = inXWidth;
         this.inYHeight = inYHeight;
         this.inDataLength = inDataLength;
-        console.log("created me!");
+        //this.drawTheGraph.bind(this);
+        //console.log("created me!");
     }
 
     events() {
@@ -477,72 +766,79 @@ class DrawLineGraph {
         console.log("called draw the graph!");
         var ctx = document.getElementById('myCanvas').getContext("2d");
         var yOffset = 1;
-        ctx.canvas.width = this.inXWidth.get(0).value;
-        ctx.canvas.height = this.inYHeight.get(0).value;
-        var xPosDest = ctx.canvas.width / 10;
-        var yPosDest = ctx.canvas.height / 1.2;
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "center";
-        ctx.font = '600 2rem Arial';
-        ctx.translate(0, ctx.canvas.height);
+        ctx.canvas.width=this.inXWidth.get(0).value;
+        ctx.canvas.height=this.inYHeight.get(0).value;
+        var xPosDest = ctx.canvas.width/10;
+        var yPosDest = ctx.canvas.height/1.2;
+        ctx.textBaseline="middle";
+        ctx.textAlign="center";
+        ctx.font='600 2rem Arial';
+        ctx.translate(0,ctx.canvas.height);
         var rect = this.c.get(0).getBoundingClientRect();
-
+        
         //Draw TAKT line
         ctx.beginPath();
-        ctx.moveTo(0, -this.inTakt.get(0).value);
+        ctx.moveTo (0,-this.inTakt.get(0).value);
         console.log(0 + "," + "-" + this.inTakt.get(0).value);
-        ctx.lineTo(this.inXWidth.get(0).value, -this.inTakt.get(0).value);
+        ctx.lineTo (this.inXWidth.get(0).value,-this.inTakt.get(0).value);
         console.log(this.inXWidth.get(0).value + "," + "-" + this.inTakt.get(0).value);
-        ctx.strokeStyle = "red";
+        ctx.strokeStyle="red";
         ctx.stroke();
 
         //Draw Demo path
         ctx.beginPath();
-        ctx.strokeStyle = "black";
+        ctx.strokeStyle="black";
         ctx.moveTo(0, ctx.canvas.height);
-        ctx.lineTo(xPosDest, -yPosDest);
-        console.log(xPosDest + "," + "-" + yPosDest);
-        drawText(xPosDest, -yPosDest);
-        for (i = 0; i < this.inDataLength.get(0).value; i++) {
-            xPosDest = xPosDest * 2;
-            yOffset = yOffset * -1;
-            yPosDest = yPosDest + yPosDest / 2 * yOffset;
-            drawText(xPosDest, -yPosDest);
+        ctx.lineTo(xPosDest,-yPosDest);
+        //console.log(xPosDest + "," + "-" + yPosDest);
+        drawText(xPosDest,-yPosDest);
+        for(i=0;i<this.inDataLength.get(0).value;i++){
+            xPosDest=xPosDest*2;
+            yOffset = yOffset*-1;
+            yPosDest=yPosDest+((yPosDest/2)*yOffset);
+            drawText(xPosDest,-yPosDest);
+            
         }
-        xPosDest = ctx.canvas.width / 10;
-        yPosDest = ctx.canvas.height / 1.2;
+        xPosDest = ctx.canvas.width/10;
+        yPosDest = ctx.canvas.height/1.2;
         yOffset = 1;
-
-        for (var i = 0; i < this.inDataLength.get(0).value; i++) {
-            xPosDest = xPosDest * 2;
-            yOffset = yOffset * -1;
-            yPosDest = yPosDest + yPosDest / 2 * yOffset;
-            createPath(xPosDest, -yPosDest);
+        
+        for(var i=0;i<this.inDataLength.get(0).value;i++){
+            xPosDest=xPosDest*2;
+            yOffset = yOffset*-1;
+            yPosDest=yPosDest+((yPosDest/2)*yOffset);
+            createPath(xPosDest,-yPosDest);
+            
         }
-        ctx.globalCompositeOperation = "destination-over";
-        ctx.strokeStyle = "black";
+        ctx.globalCompositeOperation="destination-over";
+        ctx.strokeStyle="black";
         ctx.stroke();
-
-        function createPath(destX, destY) {
-            ctx.lineTo(destX, destY);
+        
+        
+        
+        function createPath(destX,destY) {
+            ctx.lineTo(destX,destY);
         }
-
-        function drawText(destX, destY) {
-            ctx.globalCompositeOperation = "source-over";
-            ctx.fillStyle = "#FF0000";
-            ctx.fillRect(destX - 110, destY - 30, 225, 40);
+        
+        function drawText(destX,destY){
+            ctx.globalCompositeOperation="source-over";
+            ctx.fillStyle="#FF0000";
+            ctx.fillRect(destX-110,destY-30,225,40);
             ctx.fillStyle = "#3333ff";
-            ctx.fillText("(" + round(destX, 1) + " , " + round(destY, 1) + ")", destX, destY - 10);
+            ctx.fillText("(" + round(destX,1) + " , "+ round(destY,1) + ")",(destX),(destY-10));    
         }
-
+        
         function round(value, decimals) {
-            return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+            return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
         }
     }
 
 }
 
-exports.module = DrawLineGraph;
+
+exports.module =  DrawLineGraph;
+*/
+"use strict";
 'use strict';
 
 var _DrawChart = require('./modules/DrawChart');
@@ -3900,12 +4196,25 @@ doy:4// The week that contains Jan 4th is the first week of the year.
 //! author : Ben : https://github.com/ben-lin
 //! author : Chris Lam : https://github.com/hehachris
 ;(function(global,factory){true?factory(__webpack_require__(0)):typeof define==='function'&&define.amd?define(['../moment'],factory):factory(global.moment);})(this,function(moment){'use strict';var zhTw=moment.defineLocale('zh-tw',{months:'一月_二月_三月_四月_五月_六月_七月_八月_九月_十月_十一月_十二月'.split('_'),monthsShort:'1月_2月_3月_4月_5月_6月_7月_8月_9月_10月_11月_12月'.split('_'),weekdays:'星期日_星期一_星期二_星期三_星期四_星期五_星期六'.split('_'),weekdaysShort:'週日_週一_週二_週三_週四_週五_週六'.split('_'),weekdaysMin:'日_一_二_三_四_五_六'.split('_'),longDateFormat:{LT:'HH:mm',LTS:'HH:mm:ss',L:'YYYY年MMMD日',LL:'YYYY年MMMD日',LLL:'YYYY年MMMD日 HH:mm',LLLL:'YYYY年MMMD日dddd HH:mm',l:'YYYY年MMMD日',ll:'YYYY年MMMD日',lll:'YYYY年MMMD日 HH:mm',llll:'YYYY年MMMD日dddd HH:mm'},meridiemParse:/凌晨|早上|上午|中午|下午|晚上/,meridiemHour:function(hour,meridiem){if(hour===12){hour=0;}if(meridiem==='凌晨'||meridiem==='早上'||meridiem==='上午'){return hour;}else if(meridiem==='中午'){return hour>=11?hour:hour+12;}else if(meridiem==='下午'||meridiem==='晚上'){return hour+12;}},meridiem:function(hour,minute,isLower){var hm=hour*100+minute;if(hm<600){return'凌晨';}else if(hm<900){return'早上';}else if(hm<1130){return'上午';}else if(hm<1230){return'中午';}else if(hm<1800){return'下午';}else{return'晚上';}},calendar:{sameDay:'[今天]LT',nextDay:'[明天]LT',nextWeek:'[下]ddddLT',lastDay:'[昨天]LT',lastWeek:'[上]ddddLT',sameElse:'L'},dayOfMonthOrdinalParse:/\d{1,2}(日|月|週)/,ordinal:function(number,period){switch(period){case'd':case'D':case'DDD':return number+'日';case'M':return number+'月';case'w':case'W':return number+'週';default:return number;}},relativeTime:{future:'%s內',past:'%s前',s:'幾秒',m:'1 分鐘',mm:'%d 分鐘',h:'1 小時',hh:'%d 小時',d:'1 天',dd:'%d 天',M:'1 個月',MM:'%d 個月',y:'1 年',yy:'%d 年'}});return zhTw;});/***/},/* 126 *//***/function(module,exports,__webpack_require__){"use strict";var _DrawChart=__webpack_require__(127);var _DrawChart2=_interopRequireDefault(_DrawChart);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};}var drawDemoGraph=new _DrawChart2.default();/***/},/* 127 *//***/function(module,exports,__webpack_require__){"use strict";Object.defineProperty(exports,"__esModule",{value:true});var _createClass=function(){function defineProperties(target,props){for(var i=0;i<props.length;i++){var descriptor=props[i];descriptor.enumerable=descriptor.enumerable||false;descriptor.configurable=true;if("value"in descriptor)descriptor.writable=true;Object.defineProperty(target,descriptor.key,descriptor);}}return function(Constructor,protoProps,staticProps){if(protoProps)defineProperties(Constructor.prototype,protoProps);if(staticProps)defineProperties(Constructor,staticProps);return Constructor;};}();var _jquery=__webpack_require__(7);var _jquery2=_interopRequireDefault(_jquery);var _chart=__webpack_require__(128);var _chart2=_interopRequireDefault(_chart);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};}function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor)){throw new TypeError("Cannot call a class as a function");}}var $=_jquery2.default;window.jQuery=__webpack_require__(7);var moment=__webpack_require__(0);var DrawMyGraph=function(){function DrawMyGraph(){_classCallCheck(this,DrawMyGraph);this.drawChartButton=$(".draw-chart-button");this.events();this.sensorArray=$(".sensor").toArray();//console.log(this.sensorArray);
-}_createClass(DrawMyGraph,[{key:'events',value:function events(){//right clicking could allow a draw graph here context menu option
+this.drawChartChart();}_createClass(DrawMyGraph,[{key:'events',value:function events(){//right clicking could allow a draw graph here context menu option
 //Providing a button. I will need to add some fields to accept user text
-this.drawChartButton.click(this.drawChartChart.bind(this));}},{key:'getArrayValues',value:function getArrayValues(){function myArray(sensors){var a=[];for(var i=0;i<sensors.length;i++){a.push(sensors[i].value);}return a;}console.log($(".sensor--value").toArray());var myA=myArray($(".sensor--value").toArray().reverse());console.log(myA);return myA;}},{key:'getArrayTimes',value:function getArrayTimes(){function myArray(sensors){var a=[];for(var i=0;i<sensors.length;i++){a.push(moment(new Date(sensors[i].value)).local());}return a;}console.log($(".sensor--time").toArray());var myA=myArray($(".sensor--time").toArray().reverse());console.log(myA);return myA;}},{key:'getChartName',value:function getChartName(){//TODO dynamically get this from the sensor chosen.
+this.drawChartButton.click(this.drawChartChart.bind(this));}},{key:'getArrayValues',value:function getArrayValues(mySeries){function myArray(sensors){var a=[];for(var i=0;i<sensors.length;i++){a.push(sensors[i].value);}return a;}var myAO=[];for(var i in mySeries){var myA=myArray($('.sensor--value.'+mySeries[i]).toArray().reverse());//console.log("jquery: ", '.sensor--value.'+mySeries[i]);
+//console.log("mySeries:", mySeries[i]);
+//console.log("i:", i);
+myAO.push(myA);//console.log("My AO:",myAO);
+}//console.log($( `.sensor--value ${series}` ).toArray());
+return myAO;}},{key:'getArrayTimes',value:function getArrayTimes(){function myArray(sensors){var a=[];for(var i=0;i<sensors.length;i++){a.push(moment(new Date(sensors[i].value)).local());}return a;}//console.log($( ".sensor--time" ).toArray());   
+var myA=myArray($(".sensor--time").toArray().reverse());//console.log(myA);
+return myA;}},{key:'getChartName',value:function getChartName(){//TODO dynamically get this from the sensor chosen.
 function myArray(sensors){var a=[];a.push(sensors[0].textContent);return a;}//console.log($( ".sensor--name" ).toArray());
-var myA=myArray($(".sensor--name").toArray());console.log(myA[0]);return myA[0];}},{key:'drawChartChart',value:function drawChartChart(){var myAValues=this.getArrayValues();var myATimes=this.getArrayTimes();var myAName=this.getChartName();var timeFormat='MM/DD/YYYY HH:mm';//console.log("chart:", myAValues);
-var ctx=document.getElementById("myChart").getContext("2d");var myChart=new _chart2.default(ctx,{type:'line',data:{labels:myATimes,datasets:[{label:myAName,data:myAValues,pointRadius:5,pointHitRadius:25,fill:false,lineTension:0,spanGaps:false,backgroundColor:['rgba(255, 99, 132, 0.2)'],borderColor:['rgba(255,99,132,1)'],borderWidth:1}]},options:{responsive:true,title:{display:true,text:"Chart.js Time Point Data"},scales:{xAxes:[{type:"time",time:{unit:'day',unitStepSize:1,displayFormats:{'day':'MMM DD'}},display:true,scaleLabel:{display:true,labelString:'Date'},ticks:{major:{fontStyle:"bold",fontColor:"#FF0000"}}}],yAxes:[{display:true,scaleLabel:{display:true,labelString:'value'}}]},elements:{point:{pointStyle:'star'}}}});//myChart.canvas.parentNode.style.height = ;
+var myA=myArray($(".sensor--name").toArray());//console.log(myA[0]);
+return myA[0];}},{key:'getSeriesArray',value:function getSeriesArray(){function myArray(jqueryIn){var a=[];for(var i=1;i<jqueryIn.length-1;i++){a.push(jqueryIn[i].textContent);}//console.log(a);
+return a;}//console.log($("th").toArray());
+var myA=myArray($("th").toArray());return myA;}},{key:'drawChartChart',value:function drawChartChart(){var mySeries=this.getSeriesArray();var myAValues=this.getArrayValues(mySeries);var myATimes=this.getArrayTimes();var myAName=this.getChartName();var timeFormat='MM/DD/YYYY HH:mm';//console.log("My Series", mySeries);
+//console.log("Values:", myAValues);
+//console.log("Times:", myATimes);
+var ctx=document.getElementById("myChart").getContext("2d");var dataSetObjectArray=[];var borderColors=[];var red=0;var green=0;var blue=0;var alpha=0.0;function getRandomInt(min,max){min=Math.ceil(min);max=Math.floor(max);return Math.floor(Math.random()*(max-min))+min;//The maximum is exclusive and the minimum is inclusive
+}for(var i in mySeries){red=getRandomInt(100,255);green=getRandomInt(0,100);blue=getRandomInt(0,255);alpha=1;borderColors.push('rgba('+red+','+green+','+blue+','+alpha+')');dataSetObjectArray.push({label:mySeries[i],data:myAValues[i],pointRadius:5,pointHitRadius:25,fill:false,lineTension:0,spanGaps:false,backgroundColor:['rgba(255, 99, 132, 0.2)'],borderColor:[borderColors[i]],borderWidth:1});}var myChart=new _chart2.default(ctx,{type:'line',data:{labels:myATimes,datasets:dataSetObjectArray},options:{responsive:true,title:{display:true,text:"in progress products shown using Chart.js"},scales:{xAxes:[{type:"time",time:{unit:'day',unitStepSize:1,displayFormats:{'day':'MMM DD'}},display:true,scaleLabel:{display:true,labelString:'Date'},ticks:{major:{fontStyle:"bold",fontColor:"#FF0000"}}}],yAxes:[{display:true,scaleLabel:{display:true,labelString:'value'}}]},elements:{point:{pointStyle:'star'}}}});//myChart.canvas.parentNode.style.height = ;
 //console.log(myChart.canvas.parentNode.style.height);
 }}]);return DrawMyGraph;}();exports.default=DrawMyGraph;/***/},/* 128 *//***/function(module,exports,__webpack_require__){/**
  * @namespace Chart

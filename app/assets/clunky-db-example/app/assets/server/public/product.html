@@ -3,7 +3,7 @@
 
     <head>
         <link rel="stylesheet" href="/styles/styles-b23b81f2ad.css"/>
-        <title class="sensor--name">{{ product.name }}</title>
+        <title>{{ product.name }}: {{pphProduct}} </title>
         <style>
             body {
                 font-family: 'Helvetica', 'Arial', sans-serif;
@@ -15,7 +15,8 @@
     </head>
 
     <body>
-        <h1>{{product.name}}</h1>
+        <h1 class="sensor--name">{{product.name}}  </h1>
+        <h2>Average Parts Per Hour: {{pphProduct}}</h2>
         <div class="chart-container" style="position: relative; height:40vh; width:80vw">
             <canvas id="myChart" width="0" height="0"></canvas>
         </div>
@@ -32,21 +33,23 @@
                 <th>Value</th>
                 <th>Date/Time Received</th>
             </tr>
-            <tr>    
-            {% for k, v in product %}
-                {% if k == "name" %}
-                    <td>{{v}}</td>
-                {% elif k == "partsPerHour" %}
-                    <td ><input class="sensor--value" value="{{v}}" type="float"></td>
+            {% for productI in productArray%}
+                <tr>    
+                {% for k, v in productI %}
+                    {% if k == "product" %}
+                        <td>{{v}}</td>
+                    {% elif k == "partsPerHour" %}
+                        <td ><input class="sensor--value" value="{{v}}" type="float"></td>
+                    {% else %}
+                        <td ><input class="sensor--time" value="{{v}}" type='datetime'></td>
+                    {% endif %}
                 {% else %}
-                    <td ><input class="sensor--time" value="{{v}}" type='datetime'></td>
-                {% endif %}
-            {% else %}
-                <td>No Sensors found</td>
-            {% endfor %}
-            </tr>
+                    <td>No Sensors found</td>
+                {% endfor %}
+                </tr>
+            {% endfor %}    
         </table>
         
-        <script src="/scripts/script-aa43230629.js"></script>
+        <script src="/scripts/script-4286f5ca5b.js"></script>
 	</body>
 </html> 

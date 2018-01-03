@@ -5,7 +5,7 @@
         <!-- build:css /styles/styles.css -->
         <link rel="stylesheet" href="./styles/styles.css"/>
         <!-- endbuild -->
-        <title>{{ product.name }}: {{pphProduct}} </title>
+        <title>In Progress Parts </title>
         <style>
             body {
                 font-family: 'Helvetica', 'Arial', sans-serif;
@@ -17,7 +17,7 @@
     </head>
 
     <body>
-        <h1 class="sensor--name">{{product.name}}  </h1>
+        <h1>In Progress Parts  </h1>
         <h2>Average Parts Per Hour: {{pphProduct}}</h2>
         <div class="chart-container" style="position: relative; height:40vh; width:80vw">
             <canvas id="myChart" width="0" height="0"></canvas>
@@ -31,17 +31,26 @@
         
         <table>
             <tr>
-                <th></th>
-                <th>Value</th>
-                <th>Date/Time Received</th>
+                {% for object in productArray %}
+                    {% if loop.index ==1 %}
+                        {% for key,value in object %}
+                            {% if key == "_id" %}
+                                <th>Day</th>
+                            {% else %}
+                                <th {% if not loop.last %}class="sensor--name"{%endif%}>{{key}}</th>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}    
+                
             </tr>
             {% for productI in productArray%}
                 <tr>    
                 {% for k, v in productI %}
-                    {% if k == "product" %}
+                    {% if k == "_id" %}
                         <td>{{v}}</td>
-                    {% elif k == "partsPerHour" %}
-                        <td ><input class="sensor--value" value="{{v}}" type="float"></td>
+                    {% elif k !== "updatedTime" %}
+                        <td ><input class="sensor--value {{k}}" value="{{v}}" type="float"></td>
                     {% else %}
                         <td ><input class="sensor--time" value="{{v}}" type='datetime'></td>
                     {% endif %}

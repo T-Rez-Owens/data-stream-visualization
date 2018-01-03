@@ -3,11 +3,24 @@
     <!-- build:css /styles/styles.css -->
     <link rel="stylesheet" href="./styles/styles.css"/>
     <!-- endbuild -->
-        
+    <title> Level 8 App </title>    
 </head>
 <body>
+    <h1>Level 8 App</h1>
+    <form action="/product" id="productForm" class="productSelection">
+        <select name="productSelection" required="true">
+            {% for product in productArray %}
+            <option value="{{product}}">{{product}}</option>
+            {% endfor %}
+        </select> 
+        <input type="submit" value="View Parts Per Hour">  
+    </form>
+    <br>
+    <form action="/inProgress" id="productForm" class="productSelection">
+        <input type="submit" value="View in progress orders">  
+    </form>
+    <br>
     <a class = "button" href="/schedule">Schedule</a> <br>
-    <a class = "button" href="/product">Product</a> <br>
     <a class = "button" href="/partNumberGen">Part Numbers</a><br>
     <a class = "button" href="/view_dataPoint">View data Point</a><br>
     <a class = "button" href="/add_dataPoint">Add data Point</a><br>

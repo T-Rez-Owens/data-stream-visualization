@@ -1,3 +1,5 @@
+//unused 
+/*
 var jQuery = require('jquery');
 var $ = jQuery;
 //window.jQuery = require('jquery');
@@ -11,7 +13,8 @@ class DrawLineGraph{
         this.inXWidth = inXWidth;
         this.inYHeight = inYHeight;
         this.inDataLength = inDataLength;
-        console.log("created me!");
+        //this.drawTheGraph.bind(this);
+        //console.log("created me!");
     }
 
     events() {
@@ -50,7 +53,7 @@ class DrawLineGraph{
         ctx.strokeStyle="black";
         ctx.moveTo(0, ctx.canvas.height);
         ctx.lineTo(xPosDest,-yPosDest);
-        console.log(xPosDest + "," + "-" + yPosDest);
+        //console.log(xPosDest + "," + "-" + yPosDest);
         drawText(xPosDest,-yPosDest);
         for(i=0;i<this.inDataLength.get(0).value;i++){
             xPosDest=xPosDest*2;
@@ -97,3 +100,4 @@ class DrawLineGraph{
 
 
 exports.module =  DrawLineGraph;
+*/
