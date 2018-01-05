@@ -51,7 +51,40 @@ class App {
             max = Math.floor(max);
             return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
         }
-        function getScheduleFromExcel(dowToday){
+        /**
+         * Accepts a day of the week.
+         * 
+         * Returns an array containing the day's schedule as follows:
+         * 
+         * 0: Product Descriptions.
+         * 
+         * 1: Product Values.
+         * 
+         * 2: Parsed product names.
+         * 
+         * 3: A summary {object} of the parseable elements of the schedule.
+         * 
+         * 4: the uppercase string day of week of the schedule returned.
+         * @param {!number} dow 
+         * should be in the format of the result of:
+         * 
+         * dow = new Date.Day( ); 
+         * 
+         * @returns {array} 
+         */
+        function getScheduleFromExcel(dow){
+            var dowA = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];//these are used as the excel schedule's workbook sheet names.
+            switch(dow){
+                case 0://SUNDAY
+                    //spend this time well!
+                break;
+                case 6://SATURDAY
+                    console.log("enjoy your weekend!");
+                break;
+                default:
+                    var dowToday = dowA[dow];//this is used to get the workbook sheet names.
+                    //console.log(dowToday);
+            }
             var arrayArray = [[],[]];//[]
             if(dowToday.length<3){
                 throw `Error: this should be something like: MONDAY instead of ${dowToday}`;
@@ -110,6 +143,63 @@ class App {
             arrayArray[vA] = sheet2arr(ws,'G3:G12');
             arrayArray[pA] = sheet2arr(ws,'F3:F12');
             
+            var regExp = /(^En)\w+\s(A)\w+|(^En)\w+(?!\sArch)|(^Ek)\w+|(^Gr)\w+.*\d+/gim;
+            var parsedArray=[];
+            var parsedValue;
+            var importantArrayVals = [];
+            //console.log(arrayArray[pA][0][0]);
+            var i=0;
+            for(var key in arrayArray[pA]){
+                try
+                {
+                    if(arrayArray[pA][key][0]!=null){
+                        parsedValue = arrayArray[pA][key][0].match(regExp);
+                        //console.log(arrayArray[pA][key],":",parsedValue);
+                        if(parsedValue!=null){
+                            if(parsedValue[0].length>=8 && parsedValue[0].substring(0,8)=="Encore A" ){
+                                parsedValue="Encore Arch"
+                            }
+                            else if(parsedValue[0].substring(0,1)=="E"){
+                                parsedValue="Encore";
+                            }
+                            else if(parsedValue[0].substring(0,1)=="G"){
+                                //console.log("Digit:",parsedValue[0].substring(parsedValue[0].length-1));
+                                parsedValue="G"+parsedValue[0].substring(parsedValue[0].length-1);
+                            }
+                            importantArrayVals.push(i);
+                        }
+                        else{
+                        
+                        }
+                        parsedArray.push("");
+                        parsedArray[i]=parsedValue||'NoMatchingRegex';
+                    }
+                    else{
+                        parsedArray.push('N/A');
+                    }
+                    
+                }
+                catch(e){
+                    //console.log(e);
+                    parsedArray.push('BadLine');
+                }
+                i++;
+            }
+            //console.log(parsedArray);
+            //console.log(importantArrayVals);
+            var importantObject = {};
+            for(i in importantArrayVals){
+                var ii = importantArrayVals[i];
+                //console.log(ii);
+                //console.log("pA[i]:",arrayArray[pA][ii]);
+                //console.log("parsedArray[i]:",parsedArray[ii]);
+                importantObject[parsedArray[ii]]={};
+                importantObject[parsedArray[ii]]['description']=arrayArray[pA][ii][0];
+                importantObject[parsedArray[ii]]['qty']=arrayArray[vA][ii][0];
+            }
+            arrayArray.push(parsedArray);
+            arrayArray.push(importantObject);
+            arrayArray.push(dowToday);
             return arrayArray;
         }
         app.use(errorHandler);
@@ -222,73 +312,37 @@ class App {
                         date.day();//since dow is never going to be 0 (sunday) this works,
                         // but if I wanted to use sunday I'd have to re-think this logic.
             //console.log(dow);
-            var dowA = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
-            switch(dow){
-                case 0://SUNDAY
-                    //spend this time well!
-                break;
-                case 6://SATURDAY
-                    console.log("enjoy your weekend!");
-                break;
-                default:
-                    var dowToday = dowA[dow];
-                    //console.log(dowToday);
-            }
-            var schedule = getScheduleFromExcel(dowToday);
+            
+
+            var schedule = getScheduleFromExcel(dow);
             var pA = schedule[0];
             var vA = schedule[1];
+            var parsedArray = schedule[2];
+            var importantObject = schedule[3];
+            var dowToday = schedule[4];
             var orderArray = ['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th'];
-            var regExp = /(^En)\w+|(^Ek)\w+|(^Gr)\w+.*\d+/gim;
-            var parsedArray=[];
-            var parsedValue;
-            var importantArrayVals = [];
-            //console.log(pA[0][0]);
-            var i=0;
-            for(var key in pA){
-                try
+            serverApp.aggregateProductNames((productArray)=>{
+            //console.log(importantObject);//todo this important Object needs to be saved to mongo.
+                res.render('../public/schedule',
                 {
-                    if(pA[key][0]!=null){
-                        parsedValue = pA[key][0].match(regExp);
-                        console.log(pA[key],":",parsedValue);
-                        if(parsedValue!=null){
-                            if(parsedValue[0].substring(0,1)=="E"){
-                                parsedValue="Encore";
-                            }
-                            importantArrayVals.push(i);
-                        }
-                        else{
-                        
-                        }
-                        parsedArray.push("");
-                        parsedArray[i]=parsedValue||'NoMatchingRegex';
-                    }
-                    else{
-                        parsedArray.push('N/A');
-                    }
-                    
-                }
-                catch(e){
-                    //console.log(e);
-                    parsedArray.push('BadLine');
-                }
-                i++;
-            }
-            console.log(parsedArray);
-            console.log(importantArrayVals);
-            var importantObject = {};
-            for(i in importantArrayVals){
-                var ii = importantArrayVals[i];
-                console.log(ii);
-                console.log("pA[i]:",pA[ii]);
-                console.log("parsedArray[i]:",parsedArray[ii]);
-                importantObject[parsedArray[ii]]={};
-                importantObject[parsedArray[ii]]['description']=pA[ii][0];
-                importantObject[parsedArray[ii]]['qty']=vA[ii][0];
-            }
-            console.log(importantObject);
-            res.render('../public/schedule',
-            {orderArray:orderArray,productArray:pA, valueArray:vA, sdow:dowToday,dow:dow,parsedArray:parsedArray,summary:importantObject});
-            
+                    orderArray:orderArray,
+                    productArray:productArray,
+                    pA:pA, 
+                    valueArray:vA, 
+                    sdow:dowToday,
+                    dow:dow,
+                    parsedArray:parsedArray,
+                    summary:importantObject
+                });
+            });
+        });
+
+        app.get('/schedule_finished',function(req,res,next){
+            var date = momentApp(new Date());
+            var dow = parseInt(req.query.dow) || 
+                        date.day();
+            var schedule= getScheduleFromExcel(dow);
+
         });
         app.get('/product',function(req,res,next){
             console.log(req.query.productSelection);
@@ -298,7 +352,7 @@ class App {
                 name:productName,
                 partsPerHour:getRandomInt(0,80)+(1/getRandomInt(-80,80)),
                 time: new Date(),
-                limit:11
+                limit:20
             };
             //serverApp.insertProduct(product,function(result){
                 //console.log(result);
@@ -324,19 +378,13 @@ class App {
                             catch (e){
                                 res.render("error_template",{error:e});
                             }
-                                
-                            
-                            
                         });
-                        
                     });
-                    
-                    
                 });
-                
             //});
-            
         });
+
+
         app.get('/inProgress',function(req,res,next){
             
             var product = {
@@ -363,6 +411,7 @@ class App {
                 
             });
         });
+
         app.get('/partNumberGen',function(req, res, next){
             
             var RLO = req.query.rlo || 171317;

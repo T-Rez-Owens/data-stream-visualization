@@ -34,9 +34,9 @@ class DrawMyGraph{
             //console.log("mySeries:", mySeries[i]);
             //console.log("i:", i);
             myAO.push(myA);
-            //console.log("My AO:",myAO);
+            
         }
-        
+        //console.log("My AO:",myAO);
         //console.log($( `.sensor--value ${series}` ).toArray());
         
         
@@ -56,10 +56,14 @@ class DrawMyGraph{
         return myA;
     }
     getChartName(){
-        //TODO dynamically get this from the sensor chosen.
+        
         function myArray( sensors ) {
             var a = [];
+            
             a.push(sensors[0].textContent);
+            if(a[0]==null){
+                alert(sensors);
+            }
             return(a);
         }
         //console.log($( ".sensor--name" ).toArray());

@@ -15,7 +15,7 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         
     </head>
-
+<form action="/saveParsedValues" method="POST">
     <body>
         
         <table>
@@ -30,15 +30,38 @@
                 <th>Parsed value</th>
             </tr>
 
-            {% for cell in productArray %}
+            {% for cell in pA %}
 
             <tr>
                 <td id="{{ loop.index }}.{{ loop.index -1 }}">{{ orderArray[loop.index-1] }}</td>
-                <td id="{{ loop.index }}.{{ loop.index }}">{{ productArray[loop.index-1] }}</td>
+                <td id="{{ loop.index }}.{{ loop.index }}">{{ pA[loop.index-1] }}</td>
                 <td id="{{ loop.index }}.{{ loop.index +1 }}">{{ valueArray[loop.index-1] }}</td>
-                <td id="{{ loop.index }}.{{ loop.index +1 }}"><input value='{{ parsedArray[loop.index-1] }}'></td>
+                <td id="{{ loop.index }}.{{ loop.index +1 }}">
+                {% set outer_loop = loop %}
+                {% set fire = 1 %}
+                {% for product in productArray %}
+                    {% if product == parsedArray[outer_loop.index-1] %}
+                    <select name="productSelection" required="true" selected="{{ parsedArray[outer_loop.index-1] }}">
+                        {%for product2 in productArray%}
+                            {% if product2 == parsedArray[outer_loop.index-1] %}
+                        <option value="{{dow}}.{{outer_loop.index}}:{{ product2 }}" selected>{{ product2 }}</option>
+                            {% else %}
+                        <option value="{{dow}}.{{outer_loop.index}}:{{ product2 }}" >{{ product2 }}</option>
+                            {% endif %}        
+                        {% endfor %}
+                        {% set fire=0 %}
+                    </select>         
+                    <input style="margin-top:25px; display:block" type="submit" value="Submit">
+                    {% else %}
+                        {% if fire %}
+                            {% if loop.last %}
+                    {{ parsedArray[outer_loop.index-1] }}
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                </td>
             </tr>
-
             {% else %}
             <tr>
                 <td>No Sensors found</td>
@@ -56,14 +79,17 @@
         <tr>
             <th>Parsed Name</th>
             <th>Qty</th>
+            
         </tr>
         {% for key, value in summary %}
         <tr>
             <td>{{key}}:</td>
             <td>{{value.qty}}</td>
+            
         </tr>    
         {% endfor %}
         </tbody>
         </table>
+        
 	</body>
 </html>
