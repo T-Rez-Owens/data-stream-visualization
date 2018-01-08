@@ -1,49 +1,81 @@
 class BellsTheorem{
     filterObjects(){
         var array = [];
-        var threeFilters = [];
-        var twoFilters = [];
-        var objects = {
-            x : 100,
-            y: 100,
-            z: 100
+        
+        var objectsArray = []
+        for(i=0;i<50,i++) {
+            objectsArray.push(
+                {
+                    a : 1,
+                    b: 1,
+                    c: 1,
+                });
+        }
+        for(i=0;i<50,i++) {
+            objectsArray.push(
+                {
+                    b: 1,
+                    c: 1,
+                    spin: 1
+                });
+        }
+        var dividor = 2;
+        var limit = 1;
+        var multiplier = .0005;
+        function magicEquation(number){
+            return 0;
         }
         
         function filterA(objects){
-            if(objects['x']>50){
-                objects['x']=0;
-            }
+           for(i=0;i<objects.length;i++){
+            if(objects[i].d)
+           }
+            
             return objects;
         }
         function filterB(objects){
-            if(objects['y']>50){
-                objects['y']=0;
-            }
-            if(objects['z']>50){
-                objects['z']=0;
-            }
+            
+            objects['x']=(objects['y']/2)*.85;
+            objects['y']=0;
             return objects;
         }
         function filterC(objects){
-            if(objects['z']>50){
-                objects['z']=0;
-            }
+            
+           
+            objects['d']=objects['y'];
+            objects['y']=0;
+            objects['z']=0;
+           
             return objects;
         }
         function resultD(objects){
             return objects.x+objects.y+objects.z;
         }
-        var aResult = filterA(objects);
-        var bResult = filterB(aResult);
-        var cResult = filterC(bResult);
-        var sumLight = resultD(cResult);
-        console.log("\na",aResult,"\nb",bResult,"\nc",cResult,"\nLight:",sumLight);
-        
-        var aResult = filterA(objects);
+        var aResult1 = filterA(objects);
+        var bResult1 = filterB(aResult1);
+        var cResult1 = filterC(bResult1);
+        var sumLight1 = resultD(cResult1);
+        var threeFilters = {
+            aResult:aResult1,
+            bResult:bResult1,
+            cResult:cResult1,
+            Light:sumLight1
+        }
+        array.push(threeFilters);
+        var objects2 = {
+            x : 100,
+            y: 100,
+            z: 100
+        }
+        var aResult = filterA(objects2);
         var cResult = filterC(aResult);
         var sumLight = resultD(cResult);
-        console.log("\na",aResult,"\nc",cResult,"\nLight:",sumLight);
-        
+        var twoFilters = {
+            aResult:aResult,
+            cResult:cResult,
+            Light:sumLight
+        }
+        array.push(twoFilters);
         return array;
     }
 
