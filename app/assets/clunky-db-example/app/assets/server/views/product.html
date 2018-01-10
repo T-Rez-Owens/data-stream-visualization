@@ -2,9 +2,7 @@
 <html>
 
     <head>
-        <!-- build:css /styles/styles.css -->
-        <link rel="stylesheet" href="./styles/styles.css"/>
-        <!-- endbuild -->
+        {%include "../views/temp/styles.html"%}
         <title>{{ product.name }}: {{pphProduct}} </title>
         <style>
             body {
@@ -52,8 +50,6 @@
             {% endfor %}    
         </table>
         
-        <!-- build:js /scripts/script.js -->
-        <script src="./scripts/temp/scripts/App.js"/></script>
-        <!-- endbuild -->
+        {%include "../views/temp/script.html"%}
 	</body>
 </html> 

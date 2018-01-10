@@ -56,8 +56,8 @@ gulp.task('copyGeneralFiles', ['deletedocsFolder'],function(){
     console.log("Checking which files changed: ");
     return gulp.src(pathsToCopy)
     .pipe(changed("./docs"))
-    .pipe(print(function(filepath) {
-        return "Copying: " + filepath;
+    .pipe(print(function(filePath) {
+        return "Copying: " + filePath;
       }))
     .pipe(gulp.dest("./docs"));
 });

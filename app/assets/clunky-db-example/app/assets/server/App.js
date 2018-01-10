@@ -32,7 +32,7 @@ class App {
         });
     }
     main(callback) {
-        app.use(expressApp.static(pathApp.join(__dirname + '/public')));
+        app.use(expressApp.static(pathApp.join(__dirname + '/views/temp')));
         
         app.set('view engine', 'html');
         app.set('views', __dirname + '/views');
@@ -44,7 +44,7 @@ class App {
         function errorHandler(err, req, res, next) {
             console.error(err.message);
             console.error(err.stack);
-            res.status(500).render('./client/views/error_template', { error: err });
+            res.status(500).render('error_template', { error: err });
         }
         function getRandomInt(min, max) {
             min = Math.ceil(min);
@@ -213,13 +213,13 @@ class App {
             serverApp.aggregateProductNames((productArray)=>{
                 //console.log(productArray);
                 
-                res.render('../public/home',{productArray:productArray});
+                res.render('home',{productArray:productArray});
                 
             });
             
         });
         app.get('/view_dataPoint', function(req,res,next){
-            res.render('../public/viewData');
+            res.render('viewData');
         });
         app.post('/view_dataPoint', function(req, res, next) {
             var sensor = req.body.sensor.toString();
@@ -251,7 +251,7 @@ class App {
                     console.log("Retrieved: ", count,Sensor.sensor+" sensors");
                     
                     var docs = sensorArray;
-                    res.render('../public/sensor.html', { 'points' : docs});
+                    res.render('sensor.html', { 'points' : docs});
                 });
             }
             
@@ -290,7 +290,7 @@ class App {
                     console.log("Retrieved: ", count,Sensor.sensor+" sensors");
                     
                     var docs = sensorArray;
-                    res.render('../public/sensor.html', { 'points' : docs, 'value': value});
+                    res.render('sensor.html', { 'points' : docs, 'value': value});
                 });
             }
             
@@ -323,7 +323,7 @@ class App {
             var orderArray = ['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th'];
             serverApp.aggregateProductNames((productArray)=>{
             //console.log(importantObject);//todo this important Object needs to be saved to mongo.
-                res.render('../public/schedule',
+                res.render('schedule',
                 {
                     orderArray:orderArray,
                     productArray:productArray,
@@ -372,7 +372,7 @@ class App {
                               }
                             try {
                                 //console.log(pphProduct[0].PPH);
-                                res.render("../public/product",
+                                res.render("product",
                                 {product:product,productArray:productArray,pphProduct:round(pphProduct[0].PPH, 1)});
                             }                            
                             catch (e){
@@ -400,7 +400,7 @@ class App {
                 },function(err){
                     try {
                         //console.log(pphProduct[0].PPH);
-                        res.render("../public/inProgress",
+                        res.render("inProgress",
                         {productArray:productArray});
                         //console.log(productArray);
                     }                            
@@ -479,7 +479,25 @@ class App {
                 backOption:"Flex",
                 options:["Arm","Ret-GA"]
             };
-            res.render('../public/partNumberGen',{RLO:RLO,part:part});
+            res.render('partNumberGen',{RLO:RLO,part:part});
+        });
+
+        app.get('/config', function(req,res,next){
+            var product = {name:"Arduino Configuration"};
+            var updateSpot = "fallingEdge";
+            var productArray = [
+                {_id:"1", updateSpot:"n/a", risingEdge:5, fallingEdge:"n/a",  updatedTime:new Date("1/8/2018")},
+                {_id:"2", updateSpot:"n/a", risingEdge:5, fallingEdge:"n/a",  updatedTime:new Date("1/9/2018")},
+                {_id:"3", updateSpot:((updateSpot == "risingEdge") ? 95 : "n/a"), risingEdge:95, fallingEdge:95, updatedTime:new Date("1/9/2018")},
+                {_id:"4", updateSpot:"n/a", risingEdge:"n/a", fallingEdge:95,  updatedTime:new Date("1/10/2018")},
+                {_id:"5", updateSpot:((updateSpot == "fallingEdge") ? 5 : "n/a"), risingEdge:"n/a", fallingEdge:5, updatedTime:new Date("1/10/2018")},
+                {_id:"6", updateSpot:"n/a", risingEdge:"n/a", fallingEdge:5,  updatedTime:new Date("1/11/2018")},
+            ];
+            res.render('arduinoConfig',
+                {
+                    product:product,
+                    productArray:productArray
+                });
         });
         callback(app);
         }

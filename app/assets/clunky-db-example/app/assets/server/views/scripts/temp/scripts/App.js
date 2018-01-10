@@ -27667,9 +27667,27 @@ var DrawMyGraph = function () {
                 return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
             }
             for (var i in mySeries) {
-                red = getRandomInt(100, 255);
-                green = getRandomInt(0, 100);
-                blue = getRandomInt(0, 255);
+                //console.log(mySeries[i]);
+                if (mySeries[i] == "risingEdge") {
+                    red = 255;
+                    green = 0;
+                    blue = 0;
+                } else if (mySeries[i] == "fallingEdge") {
+                    red = 0;
+                    green = 255;
+                    blue = 0;
+                } else if (mySeries[i] == "updateSpot") {
+                    red = 255;
+                    green = 255;
+                    blue = 255;
+                } else {
+                    red = getRandomInt(100, 255);
+                    green = getRandomInt(100, 255);
+                    blue = getRandomInt(100, 255);
+                }
+                if (mySeries[i] == "updateSpot") {
+                    console.log(mySeries[i]);
+                }
                 alpha = 1;
                 borderColors.push('rgba(' + red + ',' + green + ',' + blue + ',' + alpha + ')');
                 dataSetObjectArray.push({

@@ -2,9 +2,7 @@
 <html>
 
     <head>
-        <!-- build:css /styles/styles.css -->
-        <link rel="stylesheet" href="./styles/styles.css"/>
-        <!-- endbuild -->
+        {%include "../views/temp/styles.html"%}
         <title>Sensor</title>
         <style>
             body {
@@ -51,7 +49,7 @@
                         {% endfor %}
                         {% set fire=0 %}
                     </select>         
-                    <input style="margin-top:25px; display:block" type="submit" value="Submit">
+                    <input style="margin-top:5px; display:block" type="submit" value="Correct Product">
                     {% else %}
                         {% if fire %}
                             {% if loop.last %}

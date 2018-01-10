@@ -11,14 +11,26 @@ Model view controller:
     Server Template integration:
         ✔ Load template page that runs jS @done (11/21/2017, 9:25:22 AM)
         
-        
+
+MongoDB integration:
+    ✔ retrieve most recent 10 @done (11/27/2017, 8:57:41 AM)
+    ✔ retrieve entire array (within specified limits) @done (11/27/2017, 10:35:00 AM)
+    ✔ retrieve date range @done (12/6/2017, 7:20:17 AM)
+    ✔ Get only instead of get and insert @done (12/6/2017, 7:20:12 AM)
 
 
-Highchart integration:
+Chart.js integration:
     ✔ get and graph history from MongoDB using the html canvas element @done (11/20/2017, 2:32:07 PM)
     ✔ Graph demo highchart @done (11/21/2017, 1:39:11 PM)
-    ☐ link the array from the server to the client
-    ☐ graph the history with a highchart
+    ✔ link the array from the server to the client @done (11/22/2017, 1:51:03 PM)
+    ✔ graph the history with a chart.js chart @done (11/22/2017, 1:51:42 PM)
+    ✔ change text to white default @done (11/22/2017, 1:53:49 PM)
+    ✔ remove unused form @done (11/22/2017, 1:56:17 PM)
+    ✔ rebuild/sync from data-stream-visualization (github) @done (11/22/2017, 1:56:56 PM)
+    ☐ pipe to static-data-visualization (github) 
+    ☐ pipe that to clunky-db-example (glitch)
+        ☐ create gulp task for above pipeline?
+Misc:        
     ☐ modularize the above into function that can be swapped for InfluxDB, etc. (Is that what Mongoose does?)
     ☐ Create observable
     ☐ Link observable

@@ -2,9 +2,9 @@
   "name": "DataVisualizationApp",
   "version": "0.0.1",
   "description": "Example app interacting with MongoDB",
-  "main": "server.js",
+  "main": "./app/assets/server/startServer.js",
   "scripts": {
-    "start": "node ./app/assets/server/startServer.js",
+    "start": "browser-refresh",
     "test": "jest --watch",
     "build": "gulp build"
   },
@@ -32,8 +32,12 @@
   "devDependencies": {
     "gulp-babel": "^7.0.0",
     "gulp-cache-files": "0.0.2",
+    "gulp-changed": "^3.2.0",
     "gulp-nodemon": "^2.2.1",
+    "gulp-print": "^2.0.1",
+    "gulp-total-task-time": "^0.1.0",
     "supertest": "^3.0.0",
-    "webpack-node-externals": "^1.6.0"
+    "webpack-node-externals": "^1.6.0",
+    "yargs": "^10.1.1"
   }
 }

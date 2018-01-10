@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block head %}
+<!-- build:css /styles/styles.css -->
+<link rel="stylesheet" href="./styles/styles.css"/>
+<!-- endbuild -->
+    {% block headMore %}
+    {% endblock %}
+{% endblock %}
+
+{% block body %}
+    {% block bodyMore %}
+    {% endblock %}
+{% endblock %}
+
+{% block bodyEnd %}
+<!-- build:js /scripts/script.js -->
+<script src="./scripts/temp/scripts/App.js"/></script>
+<!-- endbuild -->
+    {% block bodyEndMore %}
+    {% endblock %}
+{% endblock %}

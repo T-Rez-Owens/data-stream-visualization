@@ -1,3 +1,5 @@
+/* jshint node: true */
+/*jshint esversion: 6 */
 'use strict';
 
 var expressApp = require('express'),
@@ -12,6 +14,8 @@ require('dotenv').load();
 var uriApp = 'mongodb://' + process.env.USER + ':' + process.env.PASS + '@' + process.env.HOST + ':' + process.env.PORT + '/' + process.env.DB;
 var serverApp;
 serverApp = new MongoSApp(uriApp);
+var XLSX = require('XLSX');
+console.log(process.env.SYSTEM);
 
 const requestApp = require('superagent');
 
@@ -41,7 +45,149 @@ class App {
             console.error(err.stack);
             res.status(500).render('./client/views/error_template', { error: err });
         }
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+        }
+        /**
+         * Accepts a day of the week.
+         * 
+         * Returns an array containing the day's schedule as follows:
+         * 
+         * 0: Product Descriptions.
+         * 
+         * 1: Product Values.
+         * 
+         * 2: Parsed product names.
+         * 
+         * 3: A summary {object} of the parseable elements of the schedule.
+         * 
+         * 4: the uppercase string day of week of the schedule returned.
+         * @param {!number} dow 
+         * should be in the format of the result of:
+         * 
+         * dow = new Date.Day( ); 
+         * 
+         * @returns {array} 
+         */
+        function getScheduleFromExcel(dow) {
+            var dowA = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY']; //these are used as the excel schedule's workbook sheet names.
+            switch (dow) {
+                case 0:
+                    //SUNDAY
+                    //spend this time well!
+                    break;
+                case 6:
+                    //SATURDAY
+                    console.log("enjoy your weekend!");
+                    break;
+                default:
+                    var dowToday = dowA[dow]; //this is used to get the workbook sheet names.
+                //console.log(dowToday);
+            }
+            var arrayArray = [[], []]; //[]
+            if (dowToday.length < 3) {
+                throw `Error: this should be something like: MONDAY instead of ${dowToday}`;
+            }
+            if (typeof require !== 'undefined') XLSX = require('xlsx');
+            var fileString = "";
+            if (process.env.SYSTEM == 'local') {
+                fileString = '\\\\OFS1\\SHARED\\USERS\\MFG\\SHARED\\Chairs Powder Coating\\PC SCHEDULE 2017.xlsx';
+            } else {
+                fileString = pathApp.resolve(__dirname + "/public/sample/sampleSchedule.xlsx");
+            }
 
+            var workbook = XLSX.readFile(fileString);
+
+            /* DO SOMETHING WITH workbook HERE */
+            var first_sheet_name = workbook.SheetNames[0];
+            var address_of_cell = 'G3';
+
+            /* Get worksheet */
+            var ws = workbook.Sheets[dowToday];
+
+            /* Find desired cell */
+            var desired_cell = ws[address_of_cell];
+            var desired_range;
+            //console.log(ws['!ref']);
+            /* Get the value */
+
+            var desired_value = desired_cell ? desired_cell.v : undefined;
+            var sheet2arr = function (sheet, range2Arr) {
+                var result = [];
+                var row;
+                var rowNum;
+                var colNum;
+                var range = XLSX.utils.decode_range(range2Arr);
+                for (rowNum = range.s.r; rowNum <= range.e.r; rowNum++) {
+                    row = [];
+                    for (colNum = range.s.c; colNum <= range.e.c; colNum++) {
+                        var nextCell = sheet[XLSX.utils.encode_cell({ r: rowNum, c: colNum })];
+                        if (typeof nextCell === 'undefined') {
+                            row.push(void 0);
+                        } else row.push(nextCell.w);
+                    }
+                    result.push(row);
+                }
+                return result;
+            };
+            var pA = 0;
+            var vA = 1;
+
+            arrayArray[vA] = sheet2arr(ws, 'G3:G12');
+            arrayArray[pA] = sheet2arr(ws, 'F3:F12');
+
+            var regExp = /(^En)\w+\s(A)\w+|(^En)\w+(?!\sArch)|(^Ek)\w+|(^Gr)\w+.*\d+/gim;
+            var parsedArray = [];
+            var parsedValue;
+            var importantArrayVals = [];
+            //console.log(arrayArray[pA][0][0]);
+            var i = 0;
+            for (var key in arrayArray[pA]) {
+                try {
+                    if (arrayArray[pA][key][0] != null) {
+                        parsedValue = arrayArray[pA][key][0].match(regExp);
+                        //console.log(arrayArray[pA][key],":",parsedValue);
+                        if (parsedValue != null) {
+                            if (parsedValue[0].length >= 8 && parsedValue[0].substring(0, 8) == "Encore A") {
+                                parsedValue = "Encore Arch";
+                            } else if (parsedValue[0].substring(0, 1) == "E") {
+                                parsedValue = "Encore";
+                            } else if (parsedValue[0].substring(0, 1) == "G") {
+                                //console.log("Digit:",parsedValue[0].substring(parsedValue[0].length-1));
+                                parsedValue = "G" + parsedValue[0].substring(parsedValue[0].length - 1);
+                            }
+                            importantArrayVals.push(i);
+                        } else {}
+                        parsedArray.push("");
+                        parsedArray[i] = parsedValue || 'NoMatchingRegex';
+                    } else {
+                        parsedArray.push('N/A');
+                    }
+                } catch (e) {
+                    //console.log(e);
+                    parsedArray.push('BadLine');
+                }
+                i++;
+            }
+            //console.log(parsedArray);
+            //console.log(importantArrayVals);
+            var importantObject = {};
+            for (i in importantArrayVals) {
+                var ii = importantArrayVals[i];
+                //console.log(ii);
+                //console.log("pA[i]:",arrayArray[pA][ii]);
+                //console.log("parsedArray[i]:",parsedArray[ii]);
+                importantObject[parsedArray[ii]] = {};
+                importantObject[parsedArray[ii]]['description'] = arrayArray[pA][ii][0];
+                importantObject[parsedArray[ii]]['qty'] = arrayArray[vA][ii][0];
+            }
+            arrayArray.push(parsedArray);
+            arrayArray.push(importantObject);
+            arrayArray.push(dowToday);
+            return arrayArray;
+        }
         app.use(errorHandler);
 
         app.get('/helloWorld', function (req, res, next) {
@@ -49,7 +195,52 @@ class App {
             res.send(next);
         });
         app.get('/', function (req, res, next) {
-            res.render('add_dataPoint', {});
+
+            serverApp.aggregateProductNames(productArray => {
+                //console.log(productArray);
+
+                res.render('../public/home', { productArray: productArray });
+            });
+        });
+        app.get('/view_dataPoint', function (req, res, next) {
+            res.render('../public/viewData');
+        });
+        app.post('/view_dataPoint', function (req, res, next) {
+            var sensor = req.body.sensor.toString();
+            var query1 = new Date(req.body.query1);
+            //console.log(query1);
+            var query2 = new Date(req.body.query2);
+            //console.log(query2);
+
+            const Sensor = {
+                sensor: sensor
+            };
+            Sensor.limit = parseInt(req.body.limit, 10) || 20;
+            //var time = momentApp.utc(new Date()).format("YYYY-MM-DD HH:mm Z");
+            //console.log(time);
+
+            var iSensor = {
+                sensor: sensor
+            };
+            var sensorArray = [];
+            serverApp.mongoDataGrabSensorArray(Sensor, callback2);
+            function callback2(cursor) {
+                var count = 0;
+                cursor.forEach(sensor => {
+                    count = count + 1;
+                    sensor.time = momentApp(new Date(sensor.time), "YYYY-MM-DD HH:mm Z");
+                    sensorArray.push(sensor);
+                    //console.log(sensor);
+                }, function (err) {
+                    console.log("Retrieved: ", count, Sensor.sensor + " sensors");
+
+                    var docs = sensorArray;
+                    res.render('../public/sensor.html', { 'points': docs });
+                });
+            }
+        });
+        app.get('/add_dataPoint', function (req, res, next) {
+            res.render('add_dataPoint', { 'randomInt': getRandomInt(0, 5500) });
         });
         app.post('/add_dataPoint', function (req, res, next) {
             var sensor = req.body.sensor.toString();
@@ -57,8 +248,10 @@ class App {
             const Sensor = {
                 sensor: sensor
             };
-            var date = new Date();
-            var time = momentApp().format('llll');
+            Sensor.limit = parseInt(req.body.limit, 10) || 20;
+            var time = momentApp.utc(new Date()).format("YYYY-MM-DD HH:mm Z");
+            //console.log(time);
+
             var iSensor = {
                 sensor: sensor,
                 value: value,
@@ -73,10 +266,11 @@ class App {
                 var count = 0;
                 cursor.forEach(sensor => {
                     count = count + 1;
+                    sensor.time = momentApp(new Date(sensor.time), "YYYY-MM-DD HH:mm Z");
                     sensorArray.push(sensor);
                     //console.log(sensor);
                 }, function (err) {
-                    console.log("Found: ", count, Sensor.sensor + " sensors");
+                    console.log("Retrieved: ", count, Sensor.sensor + " sensors");
 
                     var docs = sensorArray;
                     res.render('../public/sensor.html', { 'points': docs, 'value': value });
@@ -91,6 +285,181 @@ class App {
         app.get('/public/scripts/example.js', function (req, res, next) {
             console.log("sent JS file.");
             res.sendFile(pathApp.resolve(__dirname + "/public/scripts/example.js"));
+        });
+        app.get('/schedule', function (req, res, next) {
+            var date = momentApp(new Date());
+            var dow = parseInt(req.query.dow) || date.day(); //since dow is never going to be 0 (sunday) this works,
+            // but if I wanted to use sunday I'd have to re-think this logic.
+            //console.log(dow);
+
+
+            var schedule = getScheduleFromExcel(dow);
+            var pA = schedule[0];
+            var vA = schedule[1];
+            var parsedArray = schedule[2];
+            var importantObject = schedule[3];
+            var dowToday = schedule[4];
+            var orderArray = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'];
+            serverApp.aggregateProductNames(productArray => {
+                //console.log(importantObject);//todo this important Object needs to be saved to mongo.
+                res.render('../public/schedule', {
+                    orderArray: orderArray,
+                    productArray: productArray,
+                    pA: pA,
+                    valueArray: vA,
+                    sdow: dowToday,
+                    dow: dow,
+                    parsedArray: parsedArray,
+                    summary: importantObject
+                });
+            });
+        });
+
+        app.get('/schedule_finished', function (req, res, next) {
+            var date = momentApp(new Date());
+            var dow = parseInt(req.query.dow) || date.day();
+            var schedule = getScheduleFromExcel(dow);
+        });
+        app.get('/product', function (req, res, next) {
+            console.log(req.query.productSelection);
+            var productName = req.query.productSelection || "hourglass";
+            productName = productName.toString();
+            var product = {
+                name: productName,
+                partsPerHour: getRandomInt(0, 80) + 1 / getRandomInt(-80, 80),
+                time: new Date(),
+                limit: 20
+            };
+            //serverApp.insertProduct(product,function(result){
+            //console.log(result);
+            serverApp.mongoDataGrabProductArray(product, function (result2) {
+                var productArray = [];
+                var count = 0;
+                result2.forEach(entry => {
+                    count++;
+                    productArray.push(entry);
+                    //console.log(productArray);
+                }, function (err) {
+                    console.log("Retrieved: ", count, product.name + " entries");
+                    serverApp.aggregateProductPartsPerHour(productName, function (pphProduct) {
+
+                        function round(value, decimals) {
+                            return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+                        }
+                        try {
+                            //console.log(pphProduct[0].PPH);
+                            res.render("../public/product", { product: product, productArray: productArray, pphProduct: round(pphProduct[0].PPH, 1) });
+                        } catch (e) {
+                            res.render("error_template", { error: e });
+                        }
+                    });
+                });
+            });
+            //});
+        });
+
+        app.get('/inProgress', function (req, res, next) {
+
+            var product = {
+                //     limit:31
+            };
+            serverApp.mongoDataGrabInProgressArray(product, function (result2) {
+                var productArray = [];
+                var count = 0;
+                result2.forEach(entry => {
+                    count++;
+                    productArray.push(entry);
+                }, function (err) {
+                    try {
+                        //console.log(pphProduct[0].PPH);
+                        res.render("../public/inProgress", { productArray: productArray });
+                        //console.log(productArray);
+                    } catch (e) {
+                        res.render("error_template", { error: e });
+                    }
+                });
+            });
+        });
+
+        app.get('/partNumberGen', function (req, res, next) {
+
+            var RLO = req.query.rlo || 171317;
+            RLO = parseInt(RLO);
+            var productOffering = {
+                productLine: {
+                    "Comfort": {
+                        "leg": '1232LegPartNum123', "front": '1232FrontPartNum123', "stack-bar": '1232StackBarPartNum123', 'seat-support': '1232SeatSupportPartNum123',
+                        backShape: { "HG": 40, "SQ": 40, "RN": 40, "OV": 40, "CR": 50, "GEN-CR": 56 },
+                        backOption: ["Flex", "Fixed"],
+                        options: ["Arm", "GA", "Ret-GA"]
+                    },
+                    "Encore": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "G2": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "G6": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "Eon": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "A3": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "Elite": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    }
+                }
+
+            };
+            var part = {
+                productLine: { "Comfort": { "leg": '109718', "front": '109716 or 109719', "stack-bar": '111231', 'seat-support': '111165' } },
+                backShape: { "HG": '1098xx' },
+                backOption: ["Flex"],
+                options: { "Arms": 'xxxxxx', "Ret-GA": 'xxxxxx' }
+            };
+            var partNumbers = {
+                productLine: {
+                    "Comfort": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "Encore": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "G2": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "G6": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "Eon": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "A3": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    },
+                    "Elite": {
+                        "leg": 1, "front": 1, "stack-bar": 1, 'seat-support': 1
+                    }
+                },
+                backShape: { "HG": 40, "SQ": 40, "RN": 40, "OV": 40, "CR": 50, "GEN-CR": 56 },
+                backOption: "Flex",
+                options: ["Arm", "Ret-GA"]
+            };
+            res.render('../public/partNumberGen', { RLO: RLO, part: part });
+        });
+
+        app.get('/config', function (req, res, next) {
+            var product = "hello";
+            var productArray = [{ 1: "1" }];
+            var pphProduct = [{ PPH: 53.5 }];
+            res.render('../public/arduinoConfig', {
+                product: product,
+                productArray: productArray,
+                pphProduct: pphProduct[0].PPH
+            });
         });
         callback(app);
     }
@@ -112,7 +481,7 @@ class Server {
         app.main(app2 => {
             let server = app2.listen(3000, function () {
                 let port = server.address().port;
-                console.log('Express server listening on port %s.', port);
+                console.log(`Express server listening on port ${port}`);
             });
         });
 
@@ -129,6 +498,9 @@ const ServerConstructor = require('./Server');
 let serverStarter;
 serverStarter = new ServerConstructor();
 serverStarter.startListening();
+/* jshint node: true */
+/*jshint esversion: 6 */
+/*jshint laxcomma:true */
 'use strict';
 
 const MongoClient = require('mongodb').MongoClient;
@@ -200,16 +572,64 @@ class MongoDB {
         return dbPromise.then(db => {
             var options = {};
             options.sensor = sensor;
-            options.limit = 10;
+            options.limit = sensor.limit !== undefined ? sensor.limit : 10;
             options.skip = 0;
             var projection = { _id: false };
             var query = this.queryDocument(options);
             var cursor = db.collection('points').find(query);
             cursor.project(projection);
+            db.collection('points').find(query).count(function (err, numOfSensors) {
+                console.log(`Returning ${options.limit} of ${numOfSensors}`);
+            });
+
             cursor.limit(options.limit);
             cursor.skip(options.skip);
             cursor.sort([["_id", -1]]); //latest n docs without having to worry about time-stamp formatting.
-            cursor.limit(10);
+            callback(cursor);
+        });
+    }
+    mongoDataGrabProductArray(product, callback) {
+        var dbPromise = this.connect();
+        return dbPromise.then(db => {
+            var query = {
+                "product": product.name
+            };
+            var options = {};
+            options.product = product;
+            options.limit = product.limit !== undefined ? product.limit : 10;
+            options.skip = 0;
+            var projection = { _id: false };
+            var cursor = db.collection('products').find(query);
+            cursor.project(projection);
+            db.collection('products').find(query).count(function (err, numOfProducts) {
+                console.log(`Returning ${options.limit} of ${numOfProducts}`);
+            });
+
+            cursor.limit(options.limit);
+            cursor.skip(options.skip);
+            cursor.sort([["_id", -1]]); //latest n docs without having to worry about time-stamp formatting.
+            callback(cursor);
+        });
+    }
+    mongoDataGrabInProgressArray(product, callback) {
+        var dbPromise = this.connect();
+        return dbPromise.then(db => {
+            var query = {};
+            //console.log(query);
+            var options = {};
+            options.product = product;
+            options.limit = product.limit !== undefined ? product.limit : 31;
+            options.skip = 0;
+            var projection = {};
+            var cursor = db.collection('inProgress').find(query);
+            cursor.project(projection);
+            db.collection('inProgress').find(query).count(function (err, numOfProducts) {
+                console.log(`Returning ${options.limit} of ${numOfProducts}`);
+            });
+
+            cursor.limit(options.limit);
+            cursor.skip(options.skip);
+            cursor.sort([["_id", -1]]); //latest n docs without having to worry about time-stamp formatting.
             callback(cursor);
         });
     }
@@ -222,15 +642,16 @@ class MongoDB {
         return query;
     }
     insertSensor(sensor, callback) {
-        if (sensor.sensor == null) {
+
+        if (parseInt(sensor.value, 10).isNan || sensor.sensor == null) {
             console.log("bad sensor");
         } else {
             var dbPromise = this.connect();
             return dbPromise.then(db => {
-                db.collection('points').insertOne({ "sensor": sensor.sensor, "value": sensor.value, "time": sensor.time }, (err, result) => {
+                db.collection('points').insertOne({ "sensor": sensor.sensor, "value": parseInt(sensor.value, 10), "time": sensor.time }, (err, result) => {
                     if (err) reject(err);
                     if (result) {
-                        console.log(`finished inserting ${result.insertedCount}  ${sensor.sensor} sensor with value:${sensor.value}`);
+                        console.log(`finished inserting ${result.insertedCount}  ${sensor.sensor} sensor with value:${parseInt(sensor.value, 10)}`);
                         callback(result);
                     } else {
                         callback({});
@@ -238,6 +659,149 @@ class MongoDB {
                 });
             });
         }
+    }
+    insertProduct(product, callback) {
+
+        if (product.partsPerHour.isNan || product.name == null) {
+            console.log("bad product");
+        } else {
+            var dbPromise = this.connect();
+            return dbPromise.then(db => {
+                db.collection('products').insertOne({ "product": product.name, "partsPerHour": product.partsPerHour, "time": product.time }, (err, result) => {
+                    if (err) reject(err);
+                    if (result) {
+                        console.log(`finished inserting ${result.insertedCount}  ${product.name} product with value:${parseInt(product.partsPerHour, 10)}`);
+                        callback(result);
+                    } else {
+                        callback({});
+                    }
+                });
+            });
+        }
+    }
+
+    aggregateProductNames(callback) {
+        var dbPromise = this.connect();
+        var products = [];
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        return dbPromise.then(db => {
+
+            db.collection('products').aggregate([
+
+            /* now group by tags, counting each tag */
+            { "$group": {
+                    "_id": "$product",
+                    count: { $avg: "$partsPerHour" }
+                }
+            }, { "$project": {
+                    _id: 0,
+                    name: "$_id"
+                }
+            }, { $sort: {
+                    name: 1
+                }
+
+                /* change the name of _id to be tag */
+
+            }], (err, result) => {
+                if (err) throw err;
+                if (result) {
+                    //console.log(result);
+                    var sum = 0;
+                    result.forEach(product => {
+                        products.push(capitalizeFirstLetter(product.name));
+                    });
+                }
+                callback(products);
+            });
+        });
+    }
+    aggregateInProgressList(callback) {
+        var dbPromise = this.connect();
+        var products = [];
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        return dbPromise.then(db => {
+
+            db.collection('inProgress').findOne((err, doc) => {
+                var array = [];
+                for (var key in doc) {
+                    array.push(key);
+                    console.log(key);
+                }
+
+                callback(array);
+            });
+
+            /*
+              db.collection('inProgress').aggregate([
+                
+                {"$group": 
+                    {
+                        "_id":"$product",
+                        count:{$avg:"$partsPerHour"}
+                    }
+                },
+                {"$project":
+                {
+                    _id:0,
+                    name:"$_id"
+                }
+                },
+                {$sort:{
+                    name:1
+                }}
+                
+            ],(err,result)=>{
+                if(err) throw (err);
+                if(result) {
+                    //console.log(result);
+                    var sum =0;
+                    result.forEach(product => {
+                        products.push(capitalizeFirstLetter(product.name));
+                    });
+                }
+                callback(products);
+            });*/
+        });
+    }
+
+    aggregateProductPartsPerHour(productName, callback) {
+        var dbPromise = this.connect();
+        var products = [];
+        return dbPromise.then(db => {
+
+            db.collection('products').aggregate([{ "$match": {
+                    product: productName
+                } },
+            /* now group by tags, counting each tag */
+            { "$group": {
+                    "_id": "$product",
+                    count: { $avg: "$partsPerHour" }
+                }
+            }, { "$project": {
+                    _id: 0,
+                    name: "$_id",
+                    PPH: '$count'
+                }
+
+                /* change the name of _id to be tag */
+
+            }], (err, result) => {
+                if (err) throw err;
+                if (result) {
+                    //console.log(result);
+                    var sum = 0;
+                    result.forEach(product => {
+                        products.push(product);
+                    });
+                }
+                callback(products);
+            });
+        });
     }
     mongoClose() {
         var dbPromise = this.connect();
@@ -248,13 +812,13 @@ class MongoDB {
 }
 
 module.exports = MongoDB;
-"use strict";
-
+//unused 
+/*
 var jQuery = require('jquery');
 var $ = jQuery;
 //window.jQuery = require('jquery');
 
-class DrawLineGraph {
+class DrawLineGraph{
     constructor(inTakt, inXWidth, inYHeight, inDataLength) {
         this.c = $(".line-graph-canvas");
         this.drawButton = $(".draw-canvas-button");
@@ -263,7 +827,8 @@ class DrawLineGraph {
         this.inXWidth = inXWidth;
         this.inYHeight = inYHeight;
         this.inDataLength = inDataLength;
-        console.log("created me!");
+        //this.drawTheGraph.bind(this);
+        //console.log("created me!");
     }
 
     events() {
@@ -278,87 +843,87 @@ class DrawLineGraph {
         console.log("called draw the graph!");
         var ctx = document.getElementById('myCanvas').getContext("2d");
         var yOffset = 1;
-        ctx.canvas.width = this.inXWidth.get(0).value;
-        ctx.canvas.height = this.inYHeight.get(0).value;
-        var xPosDest = ctx.canvas.width / 10;
-        var yPosDest = ctx.canvas.height / 1.2;
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "center";
-        ctx.font = '600 2rem Arial';
-        ctx.translate(0, ctx.canvas.height);
+        ctx.canvas.width=this.inXWidth.get(0).value;
+        ctx.canvas.height=this.inYHeight.get(0).value;
+        var xPosDest = ctx.canvas.width/10;
+        var yPosDest = ctx.canvas.height/1.2;
+        ctx.textBaseline="middle";
+        ctx.textAlign="center";
+        ctx.font='600 2rem Arial';
+        ctx.translate(0,ctx.canvas.height);
         var rect = this.c.get(0).getBoundingClientRect();
-
+        
         //Draw TAKT line
         ctx.beginPath();
-        ctx.moveTo(0, -this.inTakt.get(0).value);
+        ctx.moveTo (0,-this.inTakt.get(0).value);
         console.log(0 + "," + "-" + this.inTakt.get(0).value);
-        ctx.lineTo(this.inXWidth.get(0).value, -this.inTakt.get(0).value);
+        ctx.lineTo (this.inXWidth.get(0).value,-this.inTakt.get(0).value);
         console.log(this.inXWidth.get(0).value + "," + "-" + this.inTakt.get(0).value);
-        ctx.strokeStyle = "red";
+        ctx.strokeStyle="red";
         ctx.stroke();
 
         //Draw Demo path
         ctx.beginPath();
-        ctx.strokeStyle = "black";
+        ctx.strokeStyle="black";
         ctx.moveTo(0, ctx.canvas.height);
-        ctx.lineTo(xPosDest, -yPosDest);
-        console.log(xPosDest + "," + "-" + yPosDest);
-        drawText(xPosDest, -yPosDest);
-        for (i = 0; i < this.inDataLength.get(0).value; i++) {
-            xPosDest = xPosDest * 2;
-            yOffset = yOffset * -1;
-            yPosDest = yPosDest + yPosDest / 2 * yOffset;
-            drawText(xPosDest, -yPosDest);
+        ctx.lineTo(xPosDest,-yPosDest);
+        //console.log(xPosDest + "," + "-" + yPosDest);
+        drawText(xPosDest,-yPosDest);
+        for(i=0;i<this.inDataLength.get(0).value;i++){
+            xPosDest=xPosDest*2;
+            yOffset = yOffset*-1;
+            yPosDest=yPosDest+((yPosDest/2)*yOffset);
+            drawText(xPosDest,-yPosDest);
+            
         }
-        xPosDest = ctx.canvas.width / 10;
-        yPosDest = ctx.canvas.height / 1.2;
+        xPosDest = ctx.canvas.width/10;
+        yPosDest = ctx.canvas.height/1.2;
         yOffset = 1;
-
-        for (var i = 0; i < this.inDataLength.get(0).value; i++) {
-            xPosDest = xPosDest * 2;
-            yOffset = yOffset * -1;
-            yPosDest = yPosDest + yPosDest / 2 * yOffset;
-            createPath(xPosDest, -yPosDest);
+        
+        for(var i=0;i<this.inDataLength.get(0).value;i++){
+            xPosDest=xPosDest*2;
+            yOffset = yOffset*-1;
+            yPosDest=yPosDest+((yPosDest/2)*yOffset);
+            createPath(xPosDest,-yPosDest);
+            
         }
-        ctx.globalCompositeOperation = "destination-over";
-        ctx.strokeStyle = "black";
+        ctx.globalCompositeOperation="destination-over";
+        ctx.strokeStyle="black";
         ctx.stroke();
-
-        function createPath(destX, destY) {
-            ctx.lineTo(destX, destY);
+        
+        
+        
+        function createPath(destX,destY) {
+            ctx.lineTo(destX,destY);
         }
-
-        function drawText(destX, destY) {
-            ctx.globalCompositeOperation = "source-over";
-            ctx.fillStyle = "#FF0000";
-            ctx.fillRect(destX - 110, destY - 30, 225, 40);
+        
+        function drawText(destX,destY){
+            ctx.globalCompositeOperation="source-over";
+            ctx.fillStyle="#FF0000";
+            ctx.fillRect(destX-110,destY-30,225,40);
             ctx.fillStyle = "#3333ff";
-            ctx.fillText("(" + round(destX, 1) + " , " + round(destY, 1) + ")", destX, destY - 10);
+            ctx.fillText("(" + round(destX,1) + " , "+ round(destY,1) + ")",(destX),(destY-10));    
         }
-
+        
         function round(value, decimals) {
-            return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+            return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
         }
     }
 
 }
 
-exports.module = DrawLineGraph;
+
+exports.module =  DrawLineGraph;
+*/
+"use strict";
 'use strict';
 
 var _DrawChart = require('./modules/DrawChart');
 
 var _DrawChart2 = _interopRequireDefault(_DrawChart);
 
-var _DefaultInputs = require('./modules/DefaultInputs.js');
-
-var _DefaultInputs2 = _interopRequireDefault(_DefaultInputs);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-//import LineGraph from './modules/HighchartJquery';
-//LineGraph();
-var defaultInputs = new _DefaultInputs2.default();
 var drawDemoGraph = new _DrawChart2.default();
 "use strict";
 
@@ -570,7 +1135,7 @@ class DrawMyGraph {
                     type: "time",
                     time: {
                         format: timeFormat,
-                        // round: 'day'
+                        round: 'day',
                         tooltipFormat: 'll HH:mm'
                     },
                     scaleLabel: {
@@ -3707,17 +4272,27 @@ doy:4// The week that contains Jan 4th is the first week of the year.
 //! locale : Chinese (Taiwan) [zh-tw]
 //! author : Ben : https://github.com/ben-lin
 //! author : Chris Lam : https://github.com/hehachris
-;(function(global,factory){true?factory(__webpack_require__(0)):typeof define==='function'&&define.amd?define(['../moment'],factory):factory(global.moment);})(this,function(moment){'use strict';var zhTw=moment.defineLocale('zh-tw',{months:'一月_二月_三月_四月_五月_六月_七月_八月_九月_十月_十一月_十二月'.split('_'),monthsShort:'1月_2月_3月_4月_5月_6月_7月_8月_9月_10月_11月_12月'.split('_'),weekdays:'星期日_星期一_星期二_星期三_星期四_星期五_星期六'.split('_'),weekdaysShort:'週日_週一_週二_週三_週四_週五_週六'.split('_'),weekdaysMin:'日_一_二_三_四_五_六'.split('_'),longDateFormat:{LT:'HH:mm',LTS:'HH:mm:ss',L:'YYYY年MMMD日',LL:'YYYY年MMMD日',LLL:'YYYY年MMMD日 HH:mm',LLLL:'YYYY年MMMD日dddd HH:mm',l:'YYYY年MMMD日',ll:'YYYY年MMMD日',lll:'YYYY年MMMD日 HH:mm',llll:'YYYY年MMMD日dddd HH:mm'},meridiemParse:/凌晨|早上|上午|中午|下午|晚上/,meridiemHour:function(hour,meridiem){if(hour===12){hour=0;}if(meridiem==='凌晨'||meridiem==='早上'||meridiem==='上午'){return hour;}else if(meridiem==='中午'){return hour>=11?hour:hour+12;}else if(meridiem==='下午'||meridiem==='晚上'){return hour+12;}},meridiem:function(hour,minute,isLower){var hm=hour*100+minute;if(hm<600){return'凌晨';}else if(hm<900){return'早上';}else if(hm<1130){return'上午';}else if(hm<1230){return'中午';}else if(hm<1800){return'下午';}else{return'晚上';}},calendar:{sameDay:'[今天]LT',nextDay:'[明天]LT',nextWeek:'[下]ddddLT',lastDay:'[昨天]LT',lastWeek:'[上]ddddLT',sameElse:'L'},dayOfMonthOrdinalParse:/\d{1,2}(日|月|週)/,ordinal:function(number,period){switch(period){case'd':case'D':case'DDD':return number+'日';case'M':return number+'月';case'w':case'W':return number+'週';default:return number;}},relativeTime:{future:'%s內',past:'%s前',s:'幾秒',m:'1 分鐘',mm:'%d 分鐘',h:'1 小時',hh:'%d 小時',d:'1 天',dd:'%d 天',M:'1 個月',MM:'%d 個月',y:'1 年',yy:'%d 年'}});return zhTw;});/***/},/* 126 *//***/function(module,exports,__webpack_require__){"use strict";var _DrawLineGraph=__webpack_require__(127);var _DrawLineGraph2=_interopRequireDefault(_DrawLineGraph);var _DefaultInputs=__webpack_require__(177);var _DefaultInputs2=_interopRequireDefault(_DefaultInputs);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};}//import LineGraph from './modules/HighchartJquery';
-//LineGraph();
-var defaultInputs=new _DefaultInputs2.default();var drawDemoGraph=new _DrawLineGraph2.default();/***/},/* 127 *//***/function(module,exports,__webpack_require__){"use strict";Object.defineProperty(exports,"__esModule",{value:true});var _createClass=function(){function defineProperties(target,props){for(var i=0;i<props.length;i++){var descriptor=props[i];descriptor.enumerable=descriptor.enumerable||false;descriptor.configurable=true;if("value"in descriptor)descriptor.writable=true;Object.defineProperty(target,descriptor.key,descriptor);}}return function(Constructor,protoProps,staticProps){if(protoProps)defineProperties(Constructor.prototype,protoProps);if(staticProps)defineProperties(Constructor,staticProps);return Constructor;};}();var _jquery=__webpack_require__(7);var _jquery2=_interopRequireDefault(_jquery);var _chart=__webpack_require__(128);var _chart2=_interopRequireDefault(_chart);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};}function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor)){throw new TypeError("Cannot call a class as a function");}}var $=_jquery2.default;window.jQuery=__webpack_require__(7);var DrawMyGraph=function(){function DrawMyGraph(){_classCallCheck(this,DrawMyGraph);this.c=$(".line-graph-canvas");this.drawCanvasButton=$(".draw-canvas-button");this.drawChartButton=$(".draw-chart-button");this.events();this.inTakt=$(".taktLG");this.inXWidth=$(".widthLG");this.inYHeight=$(".heightLG");this.inDataLength=$(".numberOfPointsLG");this.sensorArray=$(".sensor").toArray();//console.log(this.sensorArray);
-}_createClass(DrawMyGraph,[{key:'events',value:function events(){console.log("button Clicked");//right clicking could allow a draw graph here context menu option
+;(function(global,factory){true?factory(__webpack_require__(0)):typeof define==='function'&&define.amd?define(['../moment'],factory):factory(global.moment);})(this,function(moment){'use strict';var zhTw=moment.defineLocale('zh-tw',{months:'一月_二月_三月_四月_五月_六月_七月_八月_九月_十月_十一月_十二月'.split('_'),monthsShort:'1月_2月_3月_4月_5月_6月_7月_8月_9月_10月_11月_12月'.split('_'),weekdays:'星期日_星期一_星期二_星期三_星期四_星期五_星期六'.split('_'),weekdaysShort:'週日_週一_週二_週三_週四_週五_週六'.split('_'),weekdaysMin:'日_一_二_三_四_五_六'.split('_'),longDateFormat:{LT:'HH:mm',LTS:'HH:mm:ss',L:'YYYY年MMMD日',LL:'YYYY年MMMD日',LLL:'YYYY年MMMD日 HH:mm',LLLL:'YYYY年MMMD日dddd HH:mm',l:'YYYY年MMMD日',ll:'YYYY年MMMD日',lll:'YYYY年MMMD日 HH:mm',llll:'YYYY年MMMD日dddd HH:mm'},meridiemParse:/凌晨|早上|上午|中午|下午|晚上/,meridiemHour:function(hour,meridiem){if(hour===12){hour=0;}if(meridiem==='凌晨'||meridiem==='早上'||meridiem==='上午'){return hour;}else if(meridiem==='中午'){return hour>=11?hour:hour+12;}else if(meridiem==='下午'||meridiem==='晚上'){return hour+12;}},meridiem:function(hour,minute,isLower){var hm=hour*100+minute;if(hm<600){return'凌晨';}else if(hm<900){return'早上';}else if(hm<1130){return'上午';}else if(hm<1230){return'中午';}else if(hm<1800){return'下午';}else{return'晚上';}},calendar:{sameDay:'[今天]LT',nextDay:'[明天]LT',nextWeek:'[下]ddddLT',lastDay:'[昨天]LT',lastWeek:'[上]ddddLT',sameElse:'L'},dayOfMonthOrdinalParse:/\d{1,2}(日|月|週)/,ordinal:function(number,period){switch(period){case'd':case'D':case'DDD':return number+'日';case'M':return number+'月';case'w':case'W':return number+'週';default:return number;}},relativeTime:{future:'%s內',past:'%s前',s:'幾秒',m:'1 分鐘',mm:'%d 分鐘',h:'1 小時',hh:'%d 小時',d:'1 天',dd:'%d 天',M:'1 個月',MM:'%d 個月',y:'1 年',yy:'%d 年'}});return zhTw;});/***/},/* 126 *//***/function(module,exports,__webpack_require__){"use strict";var _DrawChart=__webpack_require__(127);var _DrawChart2=_interopRequireDefault(_DrawChart);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};}var drawDemoGraph=new _DrawChart2.default();/***/},/* 127 *//***/function(module,exports,__webpack_require__){"use strict";Object.defineProperty(exports,"__esModule",{value:true});var _createClass=function(){function defineProperties(target,props){for(var i=0;i<props.length;i++){var descriptor=props[i];descriptor.enumerable=descriptor.enumerable||false;descriptor.configurable=true;if("value"in descriptor)descriptor.writable=true;Object.defineProperty(target,descriptor.key,descriptor);}}return function(Constructor,protoProps,staticProps){if(protoProps)defineProperties(Constructor.prototype,protoProps);if(staticProps)defineProperties(Constructor,staticProps);return Constructor;};}();var _jquery=__webpack_require__(7);var _jquery2=_interopRequireDefault(_jquery);var _chart=__webpack_require__(128);var _chart2=_interopRequireDefault(_chart);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};}function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor)){throw new TypeError("Cannot call a class as a function");}}var $=_jquery2.default;window.jQuery=__webpack_require__(7);var moment=__webpack_require__(0);var DrawMyGraph=function(){function DrawMyGraph(){_classCallCheck(this,DrawMyGraph);this.drawChartButton=$(".draw-chart-button");this.events();this.sensorArray=$(".sensor").toArray();//console.log(this.sensorArray);
+this.drawChartChart();}_createClass(DrawMyGraph,[{key:'events',value:function events(){//right clicking could allow a draw graph here context menu option
 //Providing a button. I will need to add some fields to accept user text
-this.drawCanvasButton.click(this.drawTheGraph.bind(this));this.drawChartButton.click(this.drawChartChart.bind(this));}},{key:'drawTheGraph',value:function drawTheGraph(){//console.log(this.sensorArray);
-function myArray(sensors){var a=[];for(var i=0;i<sensors.length;i++){a.push(sensors[i].value);}return a;}var myA=myArray($(".sensor--value").toArray().reverse());console.log("Canvas: ",myA);var ctx=document.getElementById('myCanvas').getContext("2d");var yOffset=1;ctx.canvas.width=this.inXWidth.get(0).value;ctx.canvas.height=this.inYHeight.get(0).value;var xPosDest=ctx.canvas.width/10;var yPosDest=ctx.canvas.height/1.2;ctx.textBaseline="middle";ctx.textAlign="center";ctx.font='600 2rem Arial';ctx.translate(0,ctx.canvas.height);var rect=this.c.get(0).getBoundingClientRect();//Draw TAKT line
-ctx.beginPath();ctx.moveTo(0,-this.inTakt.get(0).value);console.log(0+","+"-"+this.inTakt.get(0).value);ctx.lineTo(this.inXWidth.get(0).value,-this.inTakt.get(0).value);console.log(this.inXWidth.get(0).value+","+"-"+this.inTakt.get(0).value);ctx.strokeStyle="red";ctx.stroke();//Draw Demo path
-ctx.beginPath();ctx.strokeStyle="black";ctx.moveTo(0,ctx.canvas.height);ctx.lineTo(xPosDest,-yPosDest);console.log(xPosDest+","+"-"+yPosDest);drawText(xPosDest,-yPosDest);for(var i=0;i<myA.length;i++){xPosDest=xPosDest+ctx.canvas.width/10;yPosDest=myA[i];drawText(xPosDest,-yPosDest);}xPosDest=ctx.canvas.width/10;yPosDest=ctx.canvas.height/1.2;yOffset=1;for(var i=0;i<myA.length;i++){xPosDest=xPosDest+ctx.canvas.width/10;yPosDest=myA[i];createPath(xPosDest,-yPosDest);}ctx.globalCompositeOperation="destination-over";ctx.strokeStyle="black";ctx.stroke();function createPath(destX,destY){ctx.lineTo(destX,destY);}function drawText(destX,destY){ctx.globalCompositeOperation="source-over";ctx.fillStyle="#FF0000";ctx.fillRect(destX-110,destY-30,225,40);ctx.fillStyle="#3333ff";ctx.fillText("("+round(destX,1)+" , "+round(destY,1)+")",destX,destY-10);}function round(value,decimals){return Number(Math.round(value+'e'+decimals)+'e-'+decimals);}}},{key:'getArrayValues',value:function getArrayValues(){function myArray(sensors){var a=[];for(var i=0;i<sensors.length;i++){a.push(sensors[i].value);}return a;}var myA=myArray($(".sensor--value").toArray().reverse());console.log(myA);return myA;}},{key:'getArrayTimes',value:function getArrayTimes(){function myArray(sensors){var a=[];for(var i=0;i<sensors.length;i++){a.push(sensors[i].value);}return a;}var myA=myArray($(".sensor--time").toArray().reverse());console.log(myA);return myA;}},{key:'drawChartChart',value:function drawChartChart(){var myAValues=this.getArrayValues();var myATimes=this.getArrayTimes();var myAName="lux";var timeFormat='MM/DD/YYYY HH:mm';console.log("chart:",myAValues);var ctx=document.getElementById("myChart").getContext("2d");var myChart=new _chart2.default(ctx,{type:'line',data:{labels:myATimes,datasets:[{label:myAName,data:myAValues,pointRadius:5,pointHitRadius:25,fill:false,lineTension:0,spanGaps:false,backgroundColor:['rgba(255, 99, 132, 0.2)','rgba(54, 162, 235, 0.2)','rgba(255, 206, 86, 0.2)','rgba(75, 192, 192, 0.2)','rgba(153, 102, 255, 0.2)','rgba(255, 159, 64, 0.2)'],borderColor:['rgba(255,99,132,1)','rgba(54, 162, 235, 1)','rgba(255, 206, 86, 1)','rgba(75, 192, 192, 1)','rgba(153, 102, 255, 1)','rgba(255, 159, 64, 1)'],borderWidth:1}]},options:{scales:{type:"time",time:{format:timeFormat,// round: 'day'
-tooltipFormat:'ll HH:mm'},scaleLabel:{display:true,labelString:'Date'},yAxes:[{scaleLabel:{display:true,labelString:'value'},ticks:{beginAtZero:true}}]}}});//myChart.canvas.parentNode.style.height = ;
-console.log(myChart.canvas.parentNode.style.height);}}]);return DrawMyGraph;}();exports.default=DrawMyGraph;/***/},/* 128 *//***/function(module,exports,__webpack_require__){/**
+this.drawChartButton.click(this.drawChartChart.bind(this));}},{key:'getArrayValues',value:function getArrayValues(mySeries){function myArray(sensors){var a=[];for(var i=0;i<sensors.length;i++){a.push(sensors[i].value);}return a;}var myAO=[];for(var i in mySeries){var myA=myArray($('.sensor--value.'+mySeries[i]).toArray().reverse());//console.log("jquery: ", '.sensor--value.'+mySeries[i]);
+//console.log("mySeries:", mySeries[i]);
+//console.log("i:", i);
+myAO.push(myA);}//console.log("My AO:",myAO);
+//console.log($( `.sensor--value ${series}` ).toArray());
+return myAO;}},{key:'getArrayTimes',value:function getArrayTimes(){function myArray(sensors){var a=[];for(var i=0;i<sensors.length;i++){a.push(moment(new Date(sensors[i].value)).local());}return a;}//console.log($( ".sensor--time" ).toArray());   
+var myA=myArray($(".sensor--time").toArray().reverse());//console.log(myA);
+return myA;}},{key:'getChartName',value:function getChartName(){function myArray(sensors){var a=[];a.push(sensors[0].textContent);if(a[0]==null){alert(sensors);}return a;}//console.log($( ".sensor--name" ).toArray());
+var myA=myArray($(".sensor--name").toArray());//console.log(myA[0]);
+return myA[0];}},{key:'getSeriesArray',value:function getSeriesArray(){function myArray(jqueryIn){var a=[];for(var i=1;i<jqueryIn.length-1;i++){a.push(jqueryIn[i].textContent);}//console.log(a);
+return a;}//console.log($("th").toArray());
+var myA=myArray($("th").toArray());return myA;}},{key:'drawChartChart',value:function drawChartChart(){var mySeries=this.getSeriesArray();var myAValues=this.getArrayValues(mySeries);var myATimes=this.getArrayTimes();var myAName=this.getChartName();var timeFormat='MM/DD/YYYY HH:mm';//console.log("My Series", mySeries);
+//console.log("Values:", myAValues);
+//console.log("Times:", myATimes);
+var ctx=document.getElementById("myChart").getContext("2d");var dataSetObjectArray=[];var borderColors=[];var red=0;var green=0;var blue=0;var alpha=0.0;function getRandomInt(min,max){min=Math.ceil(min);max=Math.floor(max);return Math.floor(Math.random()*(max-min))+min;//The maximum is exclusive and the minimum is inclusive
+}for(var i in mySeries){red=getRandomInt(100,255);green=getRandomInt(0,100);blue=getRandomInt(0,255);alpha=1;borderColors.push('rgba('+red+','+green+','+blue+','+alpha+')');dataSetObjectArray.push({label:mySeries[i],data:myAValues[i],pointRadius:5,pointHitRadius:25,fill:false,lineTension:0,spanGaps:false,backgroundColor:['rgba(255, 99, 132, 0.2)'],borderColor:[borderColors[i]],borderWidth:1});}var myChart=new _chart2.default(ctx,{type:'line',data:{labels:myATimes,datasets:dataSetObjectArray},options:{responsive:true,title:{display:true,text:"in progress products shown using Chart.js"},scales:{xAxes:[{type:"time",time:{unit:'day',unitStepSize:1,displayFormats:{'day':'MMM DD'}},display:true,scaleLabel:{display:true,labelString:'Date'},ticks:{major:{fontStyle:"bold",fontColor:"#FF0000"}}}],yAxes:[{display:true,scaleLabel:{display:true,labelString:'value'}}]},elements:{point:{pointStyle:'star'}}}});//myChart.canvas.parentNode.style.height = ;
+//console.log(myChart.canvas.parentNode.style.height);
+}}]);return DrawMyGraph;}();exports.default=DrawMyGraph;/***/},/* 128 *//***/function(module,exports,__webpack_require__){/**
  * @namespace Chart
  */var Chart=__webpack_require__(129)();Chart.helpers=__webpack_require__(1);// @todo dispatch these helpers into appropriated helpers/helpers.* file and write unit tests!
 __webpack_require__(133)(Chart);Chart.defaults=__webpack_require__(2);Chart.Element=__webpack_require__(3);Chart.elements=__webpack_require__(4);Chart.Interaction=__webpack_require__(9);Chart.platform=__webpack_require__(10);__webpack_require__(144)(Chart);__webpack_require__(145)(Chart);__webpack_require__(146)(Chart);__webpack_require__(147)(Chart);__webpack_require__(148)(Chart);__webpack_require__(149)(Chart);__webpack_require__(150)(Chart);__webpack_require__(151)(Chart);__webpack_require__(152)(Chart);__webpack_require__(153)(Chart);__webpack_require__(154)(Chart);__webpack_require__(155)(Chart);__webpack_require__(156)(Chart);__webpack_require__(157)(Chart);// Controllers must be loaded after elements
@@ -5250,5 +5825,5 @@ isHorizontal:function(){var pos=this.options.position;return pos==='top'||pos===
 draw:function(){var me=this;var ctx=me.ctx;var valueOrDefault=helpers.valueOrDefault;var opts=me.options;var globalDefaults=defaults.global;if(opts.display){var fontSize=valueOrDefault(opts.fontSize,globalDefaults.defaultFontSize);var fontStyle=valueOrDefault(opts.fontStyle,globalDefaults.defaultFontStyle);var fontFamily=valueOrDefault(opts.fontFamily,globalDefaults.defaultFontFamily);var titleFont=helpers.fontString(fontSize,fontStyle,fontFamily);var lineHeight=helpers.options.toLineHeight(opts.lineHeight,fontSize);var offset=lineHeight/2+opts.padding;var rotation=0;var top=me.top;var left=me.left;var bottom=me.bottom;var right=me.right;var maxWidth,titleX,titleY;ctx.fillStyle=valueOrDefault(opts.fontColor,globalDefaults.defaultFontColor);// render in correct colour
 ctx.font=titleFont;// Horizontal
 if(me.isHorizontal()){titleX=left+(right-left)/2;// midpoint of the width
-titleY=top+offset;maxWidth=right-left;}else{titleX=opts.position==='left'?left+offset:right-offset;titleY=top+(bottom-top)/2;maxWidth=bottom-top;rotation=Math.PI*(opts.position==='left'?-0.5:0.5);}ctx.save();ctx.translate(titleX,titleY);ctx.rotate(rotation);ctx.textAlign='center';ctx.textBaseline='middle';var text=opts.text;if(helpers.isArray(text)){var y=0;for(var i=0;i<text.length;++i){ctx.fillText(text[i],0,y,maxWidth);y+=lineHeight;}}else{ctx.fillText(text,0,0,maxWidth);}ctx.restore();}}});function createNewTitleBlockAndAttach(chart,titleOpts){var title=new Chart.Title({ctx:chart.ctx,options:titleOpts,chart:chart});layout.configure(chart,title,titleOpts);layout.addBox(chart,title);chart.titleBlock=title;}return{id:'title',beforeInit:function(chart){var titleOpts=chart.options.title;if(titleOpts){createNewTitleBlockAndAttach(chart,titleOpts);}},beforeUpdate:function(chart){var titleOpts=chart.options.title;var titleBlock=chart.titleBlock;if(titleOpts){helpers.mergeIf(titleOpts,defaults.global.title);if(titleBlock){layout.configure(chart,titleBlock,titleOpts);titleBlock.options=titleOpts;}else{createNewTitleBlockAndAttach(chart,titleOpts);}}else if(titleBlock){Chart.layoutService.removeBox(chart,titleBlock);delete chart.titleBlock;}}};};/***/},/* 177 *//***/function(module,exports,__webpack_require__){"use strict";Object.defineProperty(exports,"__esModule",{value:true});var _createClass=function(){function defineProperties(target,props){for(var i=0;i<props.length;i++){var descriptor=props[i];descriptor.enumerable=descriptor.enumerable||false;descriptor.configurable=true;if("value"in descriptor)descriptor.writable=true;Object.defineProperty(target,descriptor.key,descriptor);}}return function(Constructor,protoProps,staticProps){if(protoProps)defineProperties(Constructor.prototype,protoProps);if(staticProps)defineProperties(Constructor,staticProps);return Constructor;};}();var _jquery=__webpack_require__(7);var _jquery2=_interopRequireDefault(_jquery);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};}function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor)){throw new TypeError("Cannot call a class as a function");}}var DefaultInputs=function(){function DefaultInputs(){_classCallCheck(this,DefaultInputs);this.inTakt=(0,_jquery2.default)(".taktLG");this.inXwidth=(0,_jquery2.default)(".widthLG");this.inYheight=(0,_jquery2.default)(".heightLG");this.inDataLength=(0,_jquery2.default)(".numberOfPointsLG");this.defaultInputs();this.logInputs();}_createClass(DefaultInputs,[{key:"defaultInputs",value:function defaultInputs(){this.inTakt.get(0).value=250;this.inXwidth.get(0).value=1000;this.inYheight.get(0).value=500;this.inDataLength.get(0).value=5;}},{key:"logInputs",value:function logInputs(){console.log(this.inTakt.get(0).value+" , "+this.inXwidth.get(0).value+" , "+this.inYheight.get(0).value+" , "+this.inDataLength.get(0).value);}}]);return DefaultInputs;}();exports.default=DefaultInputs;/***/}]/******/);
+titleY=top+offset;maxWidth=right-left;}else{titleX=opts.position==='left'?left+offset:right-offset;titleY=top+(bottom-top)/2;maxWidth=bottom-top;rotation=Math.PI*(opts.position==='left'?-0.5:0.5);}ctx.save();ctx.translate(titleX,titleY);ctx.rotate(rotation);ctx.textAlign='center';ctx.textBaseline='middle';var text=opts.text;if(helpers.isArray(text)){var y=0;for(var i=0;i<text.length;++i){ctx.fillText(text[i],0,y,maxWidth);y+=lineHeight;}}else{ctx.fillText(text,0,0,maxWidth);}ctx.restore();}}});function createNewTitleBlockAndAttach(chart,titleOpts){var title=new Chart.Title({ctx:chart.ctx,options:titleOpts,chart:chart});layout.configure(chart,title,titleOpts);layout.addBox(chart,title);chart.titleBlock=title;}return{id:'title',beforeInit:function(chart){var titleOpts=chart.options.title;if(titleOpts){createNewTitleBlockAndAttach(chart,titleOpts);}},beforeUpdate:function(chart){var titleOpts=chart.options.title;var titleBlock=chart.titleBlock;if(titleOpts){helpers.mergeIf(titleOpts,defaults.global.title);if(titleBlock){layout.configure(chart,titleBlock,titleOpts);titleBlock.options=titleOpts;}else{createNewTitleBlockAndAttach(chart,titleOpts);}}else if(titleBlock){Chart.layoutService.removeBox(chart,titleBlock);delete chart.titleBlock;}}};};/***/}]/******/);
 //# sourceMappingURL=server.js.map

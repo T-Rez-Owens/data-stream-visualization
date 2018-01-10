@@ -1,0 +1,63 @@
+<!doctype HTML>
+<html>
+
+    <head>
+        {%include "../views/temp/styles.html"%}
+        <title>{{ product.name }} </title>
+        <style>
+            body {
+                font-family: 'Helvetica', 'Arial', sans-serif;
+            }
+        </style>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        
+    </head>
+
+    <body>
+        <h1 class="sensor--name">{{product.name}}  </h1>
+        <div class="chart-container" style="position: relative; height:40vh; width:80vw">
+            <canvas id="myChart" width="0" height="0"></canvas>
+        </div>
+        <div class="wrapper"> 
+            <div tabindex="0" class="button right-column draw-chart-button">
+                Update chart
+            </div>
+        </div>
+        
+        
+        <table class="hidden-table">
+            <tr>
+                {% for object in productArray %}
+                    {% if loop.index ==1 %}
+                        {% for key,value in object %}
+                            {% if key == "_id" %}
+                                <th>Day</th>
+                            {% else %}
+                                <th {% if not loop.last %}class="sensor--name"{%endif%}>{{key}}</th>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}    
+                
+            </tr>
+            {% for productI in productArray%}
+                <tr>    
+                {% for k, v in productI %}
+                    {% if k == "_id" %}
+                        <td>{{v}}</td>
+                    {% elif k !== "updatedTime" %}
+                        <td ><input class="sensor--value {{k}}" value="{{v}}" type="float"></td>
+                    {% else %}
+                        <td ><input class="sensor--time" value="{{v}}" type='datetime'></td>
+                    {% endif %}
+                {% else %}
+                    <td>No Sensors found</td>
+                {% endfor %}
+                </tr>
+            {% endfor %}    
+        </table>
+        
+        {%include "../views/temp/script.html"%}
+	</body>
+</html> 

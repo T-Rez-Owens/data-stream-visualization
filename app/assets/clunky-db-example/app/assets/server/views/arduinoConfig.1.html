@@ -1,0 +1,39 @@
+<!doctype HTML>
+<html>
+
+    <head>
+        {%include "../views/temp/styles.html"%}
+        <title>Sensor</title>
+        <style>
+            body {
+                font-family: 'Helvetica', 'Arial', sans-serif;
+            }
+        </style>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        
+    </head>
+
+    <body>
+        <h1 class="arduino--name">Sensor: </h1>
+        <div class="{{hello}} graph" >
+            <img src="images/drawing.svg" alt="sample graph">
+            <br>
+            this section will show a sample graph canvas
+            
+        </div> 
+        <button class = "graph_button">
+            Click this to trigger the arduino to take a sample of data.
+        </button>
+        <button class="start_button">
+            Click this to trigger the arduino start collecting data.
+        </button>
+        <form class='parameter_form'>
+        debounce from rising edge: <input class="arduino--debounce1" value="" type='number'><br>
+        debounce from falling edge: <input class="arduino--debounce2" value="" type='number'><br>
+        Count on Rising or falling edge?: <input class="arduino--debounce" value="" type='number'><br>
+        <input type="submit" value="save parameters">  
+        </form>
+        
+	</body>
+</html>
