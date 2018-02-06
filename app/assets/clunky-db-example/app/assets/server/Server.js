@@ -16,7 +16,7 @@ class Server {
 
     startListening (route, callback) { 
         app.main((app2)=>{
-            let server = app2.listen(3000, function() {
+            let server = app2.listen(80, function() {
                 
                 let port = server.address().port;
                 console.log(`Express server listening on port ${port}`);
@@ -25,12 +25,6 @@ class Server {
                 }
             });    
         });
-        
-
-        function callback() {
-            return 5;
-        }
-        
     }
 }
 

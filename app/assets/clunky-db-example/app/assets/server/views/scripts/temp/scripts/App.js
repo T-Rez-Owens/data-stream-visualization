@@ -27583,9 +27583,9 @@ var DrawMyGraph = function () {
             var myAO = [];
             for (var i in mySeries) {
                 var myA = myArray($('.sensor--value.' + mySeries[i]).toArray().reverse());
-                //console.log("jquery: ", '.sensor--value.'+mySeries[i]);
-                //console.log("mySeries:", mySeries[i]);
-                //console.log("i:", i);
+                console.log("jquery: ", '.sensor--value.' + mySeries[i]);
+                console.log("mySeries:", mySeries[i]);
+                console.log("i:", i);
                 myAO.push(myA);
             }
             //console.log("My AO:",myAO);
@@ -27604,9 +27604,9 @@ var DrawMyGraph = function () {
                 }
                 return a;
             }
-            //console.log($( ".sensor--time" ).toArray());   
+            console.log($(".sensor--time").toArray());
             var myA = myArray($(".sensor--time").toArray().reverse());
-            //console.log(myA);
+            console.log(myA);
             return myA;
         }
     }, {
@@ -27622,9 +27622,9 @@ var DrawMyGraph = function () {
                 }
                 return a;
             }
-            //console.log($( ".sensor--name" ).toArray());
+            console.log($(".sensor--name").toArray());
             var myA = myArray($(".sensor--name").toArray());
-            //console.log(myA[0]);
+            console.log(myA[0]);
             return myA[0];
         }
     }, {
@@ -27685,9 +27685,10 @@ var DrawMyGraph = function () {
                     green = getRandomInt(100, 255);
                     blue = getRandomInt(100, 255);
                 }
-                if (mySeries[i] == "updateSpot") {
-                    console.log(mySeries[i]);
-                }
+                if (mySeries[i] == "updateSpot") {}
+                //console.log(myAValues[i]);
+
+                //console.log((i%2) ? true : false);
                 alpha = 1;
                 borderColors.push('rgba(' + red + ',' + green + ',' + blue + ',' + alpha + ')');
                 dataSetObjectArray.push({
@@ -27695,7 +27696,7 @@ var DrawMyGraph = function () {
                     data: myAValues[i],
                     pointRadius: 5,
                     pointHitRadius: 25,
-                    fill: false,
+                    fill: i % 2 ? true : false,
                     lineTension: 0,
                     spanGaps: false,
                     backgroundColor: ['rgba(255, 99, 132, 0.2)'],

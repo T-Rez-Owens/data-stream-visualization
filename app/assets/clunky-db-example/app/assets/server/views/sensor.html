@@ -15,7 +15,7 @@
     </head>
 
     <body>
-        <h1 class="sensor--name">Sensor: {{points.sensor}}</h1>
+        <h1 class="">Sensor: {{points.sensor}}</h1>
         <div class="chart-container" style="position: relative; height:40vh; width:80vw">
             <canvas id="myChart" width="0" height="0"></canvas>
         </div>
@@ -25,30 +25,38 @@
             </div>
         </div>
         
-        
         <table>
             <tr>
-                <th>Most Recent</th>
-                <th>Sensor</th>
-                <th>Value</th>
-                <th>Date/Time Received</th>
+                {% for object in points %}
+                    {% if loop.index ==1 %}
+                        {% for key,value in object %}
+                            {% if key == "_id" %}
+                                <th>Day</th>
+                            {% else %}
+                                <th {% if not loop.last %}class="sensor--name"{%endif%}>{{key}}</th>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}    
+                
             </tr>
-
-            {% for sensor in points %}
-
-            <tr>
-                <td>{{ loop.index }}</td>
-                <td id="{{ loop.index }}.{{ loop.index -1 }}">{{ sensor.sensor }}</td>
-                <td id="{{ loop.index }}.{{ loop.index }}"><input name:"{{ sensor.sensor }}" class="{{ loop.index }}.{{ loop.index }} sensor--value" value="{{ sensor.value }}" type='float'></td>
-                <td id="{{ loop.index }}.{{ loop.index +1 }} "><input class="{{ loop.index }}.{{ loop.index }} sensor--time" value="{{ sensor.time }}"type='datetime'></td>
-            </tr>
-
-            {% else %}
-            <tr>
-                <td>No Sensors found</td>
-            </tr>
-            {% endfor %}
+            {% for productI in points %}
+                <tr>    
+                {% for k, v in productI %}
+                    {% if k == "_id" %}
+                        <td>{{v}}</td>
+                    {% elif k !== "time" %}
+                        <td ><input class="sensor--value {{k}}" value="{{v}}" type="float"></td>
+                    {% else %}
+                        <td ><input class="sensor--time" value="{{v}}" type='datetime'></td>
+                    {% endif %}
+                {% else %}
+                    <td>No Sensors found</td>
+                {% endfor %}
+                </tr>
+            {% endfor %}    
         </table>
+        
         
         {%include "../views/temp/script.html"%}
 	</body>

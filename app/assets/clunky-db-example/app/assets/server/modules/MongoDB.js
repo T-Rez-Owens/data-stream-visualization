@@ -203,6 +203,30 @@ class MongoDB{
         }
         
     }
+
+    insertSchedule(schedule,callback){
+      
+        if(schedule.schedToday[0][0].isNan || schedule.date==null){
+            console.log("bad/no product");
+        } else {
+            var dbPromise = this.connect();
+            return dbPromise.then(db =>{
+                db.collection('schedule').insertOne(
+                    schedule
+                  , (err,result) => {
+                        if (err) reject(err);
+                        if (result) {
+                            console.log(`finished inserting ${result.insertedCount}`);
+                            callback(result);
+                        } else {
+                            callback({});
+                        }
+                    }
+                );
+            });
+        }
+        
+    }
     
     aggregateProductNames(callback){
         var dbPromise = this.connect();

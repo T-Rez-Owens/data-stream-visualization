@@ -19,7 +19,8 @@
         <table>
             <tbody>
             <tr >
-            <th colspan="4">Schedule for {{sdow}}</th>
+            <th colspan="3">Schedule for {{sdow}}</th>
+            <th> <a class="button" href="/schedule?dow={{dow}}&save=true">Save to Mongo Database</a>{% if saved %}<br> Saved!{% endif %}</th>
             </tr>
             <tr>
                 <th>Order</th>
@@ -62,12 +63,16 @@
             </tr>
             {% else %}
             <tr>
-                <td>No Sensors found</td>
+                <td>No Schedule found</td>
             </tr>
             {% endfor %}
             </tbody>
         </table>
+        
+        
+        <br>
         <a class="button" href="/schedule?dow={% if dow == 1 %}5{% else %}{{dow -1}}{% endif %}">Previous Day</a>
+        
         <a class="button" href="/schedule?dow={% if (dow == 6) or (dow == 5) %}1{% else %}{{dow +1}}{% endif %}">Next Day</a>
         <table name="summary">
         <tbody>

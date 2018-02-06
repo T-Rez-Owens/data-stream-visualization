@@ -92,7 +92,7 @@ class App {
             if(typeof require !== 'undefined') XLSX = require('xlsx');
             var fileString = "";
             if(process.env.SYSTEM == 'local'){
-                fileString = '\\\\OFS1\\SHARED\\USERS\\MFG\\SHARED\\Chairs Powder Coating\\PC SCHEDULE 2017.xlsx';
+                fileString = '\\\\OFS1\\SHARED\\USERS\\SHARED\\Chairs Powder Coating\\PC SCHEDULE 2018.xlsx';
             }
             else{
                 fileString = pathApp.resolve(__dirname + "/public/sample/sampleSchedule.xlsx");
@@ -143,7 +143,7 @@ class App {
             arrayArray[vA] = sheet2arr(ws,'G3:G12');
             arrayArray[pA] = sheet2arr(ws,'F3:F12');
             
-            var regExp = /(^En)\w+\s(A)\w+|(^En)\w+(?!\sArch)|(^Ek)\w+|(^Gr)\w+.*\d+/gim;
+            var regExp = /(^En)\w+\s(A)\w+|(^En)\w+(?!\sArch)|(^Ek)\w+|(^Eon)|(^Elite)|(^Gr)\w+.*\d+|(CLASSIC STACKING CHAIR Square)|(CLASSIC STACKING CHAIR CROWN)|(CLASSIC STACKING CHAIR HOURGLASS)|(CLASSIC STACKING CHAIR OVAL)/gim;
             var parsedArray=[];
             var parsedValue;
             var importantArrayVals = [];
@@ -154,17 +154,39 @@ class App {
                 {
                     if(arrayArray[pA][key][0]!=null){
                         parsedValue = arrayArray[pA][key][0].match(regExp);
-                        //console.log(arrayArray[pA][key],":",parsedValue);
+                        
                         if(parsedValue!=null){
                             if(parsedValue[0].length>=8 && parsedValue[0].substring(0,8)=="Encore A" ){
-                                parsedValue="Encore Arch"
+                                parsedValue="Encore Arch";
+                            }
+                            else if(parsedValue[0].substring(0,2)=="Eo"){
+                                parsedValue="Eon";
+                            }
+                            else if(parsedValue[0].substring(0,2)=="El"){
+                                parsedValue="Elite";
                             }
                             else if(parsedValue[0].substring(0,1)=="E"){
                                 parsedValue="Encore";
                             }
                             else if(parsedValue[0].substring(0,1)=="G"){
-                                //console.log("Digit:",parsedValue[0].substring(parsedValue[0].length-1));
+                                
                                 parsedValue="G"+parsedValue[0].substring(parsedValue[0].length-1);
+                            }
+                            else if(parsedValue[0].substring(23,29)=="SQUARE"){
+                                
+                                parsedValue="Square";
+                            }
+                            else if(parsedValue[0].substring(23,28)=="CROWN"){
+                                
+                                parsedValue="Crown";
+                            }
+                            else if(parsedValue[0].substring(23,27)=="OVAL"){
+                                
+                                parsedValue="Oval";
+                            }
+                            else if(parsedValue[0].substring(23,34)=="HOURGLASS"){
+                                
+                                parsedValue="Hourglass";
                             }
                             importantArrayVals.push(i);
                         }
@@ -191,11 +213,14 @@ class App {
             for(i in importantArrayVals){
                 var ii = importantArrayVals[i];
                 //console.log(ii);
-                //console.log("pA[i]:",arrayArray[pA][ii]);
-                //console.log("parsedArray[i]:",parsedArray[ii]);
-                importantObject[parsedArray[ii]]={};
-                importantObject[parsedArray[ii]]['description']=arrayArray[pA][ii][0];
-                importantObject[parsedArray[ii]]['qty']=arrayArray[vA][ii][0];
+                //console.log("pA[ii]:",arrayArray[pA][ii]);
+                //console.log("parsedArray[ii]:",parsedArray[ii]);
+                
+                
+                //Without the <ii + " " + > line in there this will break on duplicate key names, keeping only the last.
+                importantObject[ii + " " + parsedArray[ii]]={};
+                importantObject[ii + " " + parsedArray[ii]]['description']=arrayArray[pA][ii][0];
+                importantObject[ii + " " + parsedArray[ii]]['qty']=arrayArray[vA][ii][0];
             }
             arrayArray.push(parsedArray);
             arrayArray.push(importantObject);
@@ -321,8 +346,28 @@ class App {
             var importantObject = schedule[3];
             var dowToday = schedule[4];
             var orderArray = ['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th'];
+            var saved = false;
             serverApp.aggregateProductNames((productArray)=>{
             //console.log(importantObject);//todo this important Object needs to be saved to mongo.
+            if(req.query.save){
+                var schedToday =[];
+                
+                //console.log(parsedArray);
+                for(var i in parsedArray ){
+                    
+                    //console.log(vA[i][0]);
+                    schedToday[i]={
+                        [i] : { [parsedArray[i]]:parseInt(vA[i][0]) }
+                    };
+                }
+                //console.log(schedToday);
+                let offset = date.day()-dow;
+                let mongoSchedObject = {date:new Date(date.year(), date.month(), date.date()-offset), schedToday};
+                serverApp.insertSchedule(mongoSchedObject,function(result){
+                    //console.log("Schedule Inserted.", result.insertedCount);
+                });
+                saved = true;
+            }
                 res.render('schedule',
                 {
                     orderArray:orderArray,
@@ -332,7 +377,9 @@ class App {
                     sdow:dowToday,
                     dow:dow,
                     parsedArray:parsedArray,
-                    summary:importantObject
+                    summary:importantObject,
+                    saved:saved,
+                    schedToday:schedToday
                 });
             });
         });
