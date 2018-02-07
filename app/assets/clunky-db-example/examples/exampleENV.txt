@@ -1,0 +1,8 @@
+{
+    USER=xxxx
+    PASS=xxxx
+    HOST=xxxx
+    PORT=xxxx
+    DB=xxxx
+    SYSTEM=local
+}
