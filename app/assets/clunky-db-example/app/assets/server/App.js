@@ -231,14 +231,13 @@ class App {
 
         app.get('/helloWorld', function(req,res, next){
             res.send("Hello World");
-            res.send(next);
         });
         app.get('/', function(req,res,next){
-            
+            var arduinoArray = ["Comfort Framing"];
             serverApp.aggregateProductNames((productArray)=>{
                 //console.log(productArray);
                 
-                res.render('home',{productArray:productArray});
+                res.render('home',{productArray:productArray, arduinoArray:arduinoArray});
                 
             });
             
@@ -530,7 +529,8 @@ class App {
         });
 
         app.get('/config', function(req,res,next){
-            var product = {name:"Arduino Configuration"};
+            var arduinoName = req.query.arduinoSelection.toString();
+            var product = {name:`Arduino Configuration: ${arduinoName}`};
             var updateSpot = "fallingEdge";
             var productArray = [
                 {_id:"1", updateSpot:"n/a", risingEdge:5, fallingEdge:"n/a",  updatedTime:new Date("1/8/2018")},

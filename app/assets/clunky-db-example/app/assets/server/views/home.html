@@ -18,7 +18,14 @@
         <input type="submit" value="View in-progress orders">  
     </form>
     <br>
-    <a class = "button" href="/config">Arduino Config</a> <br>
+    <form action="/config" id="arduinoForm" class="arduinoSelection">
+        <select name="arduinoSelection" required="false">
+            {% for arduino in arduinoArray %}
+            <option value="{{arduino}}">{{arduino}}</option>
+            {% endfor %}
+        </select> 
+        <input type="submit" value="Arduino Config">  
+    </form>
     <a class = "button" href="/schedule">Schedule</a> <br>
     <a class = "button" href="/partNumberGen">Part Numbers</a><br>
     <a class = "button" href="/view_dataPoint">View data Point</a><br>
