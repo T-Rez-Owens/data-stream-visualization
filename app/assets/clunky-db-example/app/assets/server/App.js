@@ -219,8 +219,8 @@ class App {
                 
                 //Without the <ii + " " + > line in there this will break on duplicate key names, keeping only the last.
                 importantObject[ii + " " + parsedArray[ii]]={};
-                importantObject[ii + " " + parsedArray[ii]]['description']=arrayArray[pA][ii][0];
-                importantObject[ii + " " + parsedArray[ii]]['qty']=arrayArray[vA][ii][0];
+                importantObject[ii + " " + parsedArray[ii]]['description']=arrayArray[pA][ii][0];// jshint ignore:line
+                importantObject[ii + " " + parsedArray[ii]]['qty']=arrayArray[vA][ii][0];// jshint ignore:line
             }
             arrayArray.push(parsedArray);
             arrayArray.push(importantObject);
@@ -348,21 +348,20 @@ class App {
             var saved = false;
             serverApp.aggregateProductNames((productArray)=>{
             //console.log(importantObject);//todo this important Object needs to be saved to mongo.
+            var scheduleToday =[];
             if(req.query.save){
-                var schedToday =[];
-                
                 //console.log(parsedArray);
                 for(var i in parsedArray ){
                     
                     //console.log(vA[i][0]);
-                    schedToday[i]={
+                    scheduleToday[i]={
                         [i] : { [parsedArray[i]]:parseInt(vA[i][0]) }
                     };
                 }
-                //console.log(schedToday);
+                //console.log(scheduleToday);
                 let offset = date.day()-dow;
-                let mongoSchedObject = {date:new Date(date.year(), date.month(), date.date()-offset), schedToday};
-                serverApp.insertSchedule(mongoSchedObject,function(result){
+                let mongoScheduleObject = {date:new Date(date.year(), date.month(), date.date()-offset), scheduleToday};
+                serverApp.insertSchedule(mongoScheduleObject,function(result){
                     //console.log("Schedule Inserted.", result.insertedCount);
                 });
                 saved = true;
@@ -378,7 +377,7 @@ class App {
                     parsedArray:parsedArray,
                     summary:importantObject,
                     saved:saved,
-                    schedToday:schedToday
+                    scheduleToday:scheduleToday
                 });
             });
         });
@@ -530,7 +529,12 @@ class App {
 
         app.get('/config', function(req,res,next){
             var arduinoName = req.query.arduinoSelection.toString();
+            var topic = "To"+arduinoName;
+            
             var product = {name:`Arduino Configuration: ${arduinoName}`};
+            serverApp.mongoGetArduinoSettings(arduinoName,(settings)=>{
+                console.log(topic, settings);
+            });
             var updateSpot = "fallingEdge";
             var productArray = [
                 {_id:"1", updateSpot:"n/a", risingEdge:5, fallingEdge:"n/a",  updatedTime:new Date("1/8/2018")},

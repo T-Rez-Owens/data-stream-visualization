@@ -49,7 +49,7 @@ class MongoDB{
                 { }
               , { _id: false }
               , (err, cursor) => {
-                    if (err) reject(err);
+                    if (err) reject(err);// jshint ignore:line
                     if (cursor) {
                         callback(cursor);
                     } else {
@@ -67,7 +67,7 @@ class MongoDB{
                 {"sensor":sensor.sensor }
               , { _id: false }
               , (err, cursor) => {
-                    if (err) reject(err);
+                    if (err) reject(err);// jshint ignore:line
                     if (cursor) {
                         callback(cursor);
                     } else {
@@ -167,7 +167,7 @@ class MongoDB{
                 db.collection('points').insertOne(
                     {"sensor":sensor.sensor, "value":parseInt(sensor.value,10), "time":sensor.time }
                   , (err,result) => {
-                        if (err) reject(err);
+                        if (err) reject(err);// jshint ignore:line
                         if (result) {
                             console.log(`finished inserting ${result.insertedCount}  ${sensor.sensor} sensor with value:${parseInt(sensor.value,10)}`);
                             callback(result);
@@ -190,7 +190,7 @@ class MongoDB{
                 db.collection('products').insertOne(
                     {"product":product.name, "partsPerHour":product.partsPerHour, "time":product.time }
                   , (err,result) => {
-                        if (err) reject(err);
+                        if (err) reject(err);// jshint ignore:line
                         if (result) {
                             console.log(`finished inserting ${result.insertedCount}  ${product.name} product with value:${parseInt(product.partsPerHour,10)}`);
                             callback(result);
@@ -206,7 +206,7 @@ class MongoDB{
 
     insertSchedule(schedule,callback){
       
-        if(schedule.schedToday[0][0].isNan || schedule.date==null){
+        if(schedule.scheduleToday[0][0].isNan || schedule.date==null){
             console.log("bad/no product");
         } else {
             var dbPromise = this.connect();
@@ -214,7 +214,7 @@ class MongoDB{
                 db.collection('schedule').insertOne(
                     schedule
                   , (err,result) => {
-                        if (err) reject(err);
+                        if (err) reject(err);// jshint ignore:line
                         if (result) {
                             console.log(`finished inserting ${result.insertedCount}`);
                             callback(result);
@@ -360,6 +360,33 @@ class MongoDB{
                 }
                 callback(products);
             });    
+        });
+    }
+    mongoGetArduinoSettings(arduinoName, callback){
+        var dbPromise = this.connect();
+        return dbPromise.then(db=>{
+            db.collection('arduinoSettings').findOne((err,doc)=>{
+                var array =[];
+                for(var key in doc){
+                    array.push(key);
+                    console.log(key);
+                } 
+                callback(array);
+            });
+        });
+    }
+    mongoSetArduinoSettings(arduinoName, callback){
+        var dbPromise = this.connect();
+        return dbPromise.then(db=>{
+            db.collection('arduinoSettings').updateOne((err,doc)=>{
+                var array =[];
+                for(var key in doc){
+                    array.push(key);
+                    console.log(key);
+                } 
+
+                callback(array);
+            });
         });
     }
     mongoClose(){

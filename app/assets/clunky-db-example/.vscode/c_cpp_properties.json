@@ -1,0 +1,88 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "/usr/include",
+                "/usr/local/include",
+                "${workspaceRoot}"
+            ],
+            "defines": [],
+            "intelliSenseMode": "clang-x64",
+            "browse": {
+                "path": [
+                    "/usr/include",
+                    "/usr/local/include",
+                    "${workspaceRoot}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "macFrameworkPath": [
+                "/System/Library/Frameworks",
+                "/Library/Frameworks"
+            ]
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+                "/usr/include",
+                "/usr/local/include",
+                "${workspaceRoot}"
+            ],
+            "defines": [],
+            "intelliSenseMode": "clang-x64",
+            "browse": {
+                "path": [
+                    "/usr/include",
+                    "/usr/local/include",
+                    "${workspaceRoot}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            }
+        },
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceRoot}",
+                "${workspaceRoot}/examples/libraries/Arduino_Uno_WiFi_Dev_Ed_Library-0.0.3/src"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE"
+            ],
+            "intelliSenseMode": "msvc-x64",
+            "browse": {
+                "path": [
+                    "${workspaceRoot}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            }
+        },
+        {
+            "name": "Arduino",
+            "includePath": [
+                "C:/Program Files (x86)/Arduino/hardware/arduino/avr/cores/arduino/",
+                "C:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/EEPROM/",
+                "C:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/SPI/",
+                "C:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/SoftwareSerial/",
+                "C:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire/",
+                "C:/Program Files (x86)/Arduino/hardware/tools/avr/avr/include/",
+                "C:/Program Files (x86)/Arduino/hardware/tools/avr/avr/include/avr/",
+                "C:/Program Files (x86)/Arduino/hardware/tools/avr/avr/include/compat/",
+                "C:/Program Files (x86)/Arduino/hardware/tools/avr/avr/include/util/",
+                "C:/Program Files (x86)/Arduino/hardware/tools/avr/lib/gcc/avr/4.*.*/include/",
+                "C:/Program Files (x86)/Arduino/hardware/tools/avr/lib/gcc/avr/4.*.*/include-fixed/",
+                "C:/Program Files (x86)/Arduino/libraries/Arduino_Uno_WiFi_Dev_Ed_Library-0.0.3/src/lib"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "intelliSenseMode": "msvc-x64"
+        }
+    ],
+    "version": 3
+}

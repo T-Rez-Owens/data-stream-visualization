@@ -3,22 +3,28 @@
 
 
 #define CONNECTOR "mqtt"
-#define TOPIC_READ "SensorData1"
-#define TOPIC_WRITE "SensorData"
-
+#define TOPIC_READ "ToSensor1"
+#define TOPIC_WRITE "FromSensor1"
+//constants:
 const int buttonPin = 4;     // the number of the pressureSensor pin
-const int ledPin =  13;  
-
+const int ledPin =  13;
+  
+//initialize vars
 int buttonState = 0;
 int lastButtonState = 0;
 int cycles = 0;
-int lastCycles = -1;
+int lastCycle = -1;
+int sampleData[] = {};
+int updateBeat = 0;
+
+//initialize triggers
 bool samplingData = 1;
 bool powerSave = 1;
-int sampleData[] = {};
+
+//initialize settings
 int sampleRate = 250;
 int heartBeatRate = 100;
-int updateBeat = 0;
+
 
 void setup(void) 
 {
@@ -89,10 +95,9 @@ void loop(void)
   buttonState = digitalRead(buttonPin);
   if(cycles != lastCycles){
     //Ciao.write(CONNECTOR, TOPIC_WRITE, myString); 
-    lastCycles=cycles;
+    lastCycle=cycles;
   }
   delay(sampleRate);
   cycles+=1; 
   
 }
-

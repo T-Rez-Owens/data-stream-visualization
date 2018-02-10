@@ -21,7 +21,7 @@
     <form action="/config" id="arduinoForm" class="arduinoSelection">
         <select name="arduinoSelection" required="false">
             {% for arduino in arduinoArray %}
-            <option value="{{arduino}}">{{arduino}}</option>
+            <option value="Sensor{{loop.index}}">{{arduino}}</option>
             {% endfor %}
         </select> 
         <input type="submit" value="Arduino Config">  

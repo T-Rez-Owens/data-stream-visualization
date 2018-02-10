@@ -37,6 +37,7 @@
     "gulp-nodemon": "^2.2.1",
     "gulp-print": "^2.0.1",
     "gulp-total-task-time": "^0.1.0",
+    "jshint": "^2.9.5",
     "supertest": "^3.0.0",
     "webpack-node-externals": "^1.6.0",
     "yargs": "^10.1.1"
